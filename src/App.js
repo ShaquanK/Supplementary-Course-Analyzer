@@ -20,39 +20,13 @@ import ManageUser from "./Pages/ManageUser/ManageUser";
 //route authentication
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { AuthProvider } from "./utils/AuthContext";
+import RouteProvider from "./utils/routes";
 
 function App() {
   return (
     <AuthProvider>
       <div>
-        <HashRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/Register" element={<RegisterMainPage />} />
-            <Route path="/Login" element={<LoginMainPage />} />
-
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<HomeMainPage />} />
-              <Route
-                path="/CourseTimeAnalyzer"
-                element={<CourseTimeAnalyzer />}
-              />
-              <Route path="/Creators" element={<CreatorsMainPage />} />
-              <Route path="/SourceData" element={<SourceDataMainPage />} />
-              <Route
-                path="/StudentEnrollmentAnalyzer"
-                element={<StudentEnrollmentAnalyzerMainPage />}
-              />
-              <Route
-                path="/SupCourseAnalyzer"
-                element={<SupCourseAnalyzerMainPage />}
-              />
-              <Route path="/ManageUser" element={<ManageUser/>}/>
-              <Route path="/search" element={<Search />} />
-            </Route>
-          </Routes>
-        </HashRouter>
+        <RouteProvider />
       </div>
     </AuthProvider>
   );

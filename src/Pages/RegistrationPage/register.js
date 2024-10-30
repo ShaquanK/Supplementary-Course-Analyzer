@@ -1,7 +1,11 @@
 import React, { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import backgroundImage from "../../img/background.jpg";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import {
   Alert,
   Box,
@@ -25,6 +29,7 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -64,10 +69,16 @@ const Register = () => {
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
+
+          // Update the displayName
+          return updateProfile(user, {
+            displayName: displayName, // Replace with actual display name input if available
+          });
+        })
+        .then(() => {
           setSuccessMessage("Sign up was successful");
           setErrorMessage("");
           sendEmail(e);
-
           navigate("/login");
         })
         .catch((error) => {
@@ -113,6 +124,17 @@ const Register = () => {
 
         <form ref={form} onSubmit={handleSignUp}>
           <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                type="text"
+                label="Display Name"
+                variant="outlined"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                name="user_display_name"
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth

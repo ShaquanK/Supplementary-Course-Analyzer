@@ -68,7 +68,7 @@ const Banner = () => {
             onClose={handleClose}
           >
             <Button
-              href="/#/CourseTimeAnalyzer"
+              href="/CourseTimeAnalyzer"
               variant="contained"
               sx={{
                 backgroundColor: "#486b7a",
@@ -79,7 +79,7 @@ const Banner = () => {
               Course Time Analyzer{" "}
             </Button>
             <Button
-              href="/#/Creators"
+              href="/Creators"
               variant="contained"
               sx={{
                 backgroundColor: "#486b7a",
@@ -90,7 +90,7 @@ const Banner = () => {
               Creators{" "}
             </Button>
             <Button
-              href="/#/SourceData"
+              href="/SourceData"
               variant="contained"
               sx={{
                 backgroundColor: "#486b7a",
@@ -101,7 +101,7 @@ const Banner = () => {
               Source Data{" "}
             </Button>
             <Button
-              href="/#/StudentEnrollmentAnalyzer"
+              href="/StudentEnrollmentAnalyzer"
               variant="contained"
               sx={{
                 backgroundColor: "#486b7a",
@@ -112,7 +112,7 @@ const Banner = () => {
               Student Enrollment Analyzer{" "}
             </Button>
             <Button
-              href="/#/SupCourseAnalyzer"
+              href="/SupCourseAnalyzer"
               variant="contained"
               sx={{
                 backgroundColor: "#486b7a",

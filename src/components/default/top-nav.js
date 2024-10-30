@@ -32,6 +32,7 @@ const menuOptions = [
     path: "/StudentEnrollmentAnalyzer",
   },
   { label: "Sup. Course Analyzer", path: "/SupCourseAnalyzer" },
+  { label: "Manage User", path: "/ManageUser"}
   
 ];
 

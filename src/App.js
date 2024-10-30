@@ -16,7 +16,7 @@ import About from "./Pages/About/About";
 import RegisterMainPage from "./Pages/RegistrationPage/register";
 import { Search } from "./Pages/Search/search";
 import app from "./utils/firebase";
-
+import ManageUser from "./Pages/ManageUser/ManageUser";
 //route authentication
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { AuthProvider } from "./utils/AuthContext";
@@ -48,6 +48,7 @@ function App() {
                 path="/SupCourseAnalyzer"
                 element={<SupCourseAnalyzerMainPage />}
               />
+              <Route path="/ManageUser" element={<ManageUser/>}/>
               <Route path="/search" element={<Search />} />
             </Route>
           </Routes>

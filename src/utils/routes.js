@@ -9,6 +9,7 @@ import SupCourseAnalyzerMainPage from "../Pages/SupCourseAnalyzer/SupCourseAnaly
 import LoginMainPage from "../Pages/LoginPage/LoginMainPage";
 import { Search } from "../Pages/Search/search";
 import CourseTimeAnalyzer from "../Pages/CourseTimeAnalyzerPage/CourseTimeAnalyzer";
+import StudentAvailability from "../Pages/StudentAvailability/StudentAvailability";
 
 // route authentication
 import ProtectedRoutes from "./ProtectedRoutes";
@@ -46,6 +47,7 @@ const RouteProvider = () => {
             />
             <Route path="/ManageUser" element={<ManageUser />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/StudentAvailability" element={<StudentAvailability />} />
           </Route>
         </Routes>
       </Router>

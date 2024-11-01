@@ -64,7 +64,7 @@ export const Search = () => {
     instructor: "",
     time: "",
     days: "",
-    availableSeats: true,
+    availableSeats: false,
   });
 
   const headers =

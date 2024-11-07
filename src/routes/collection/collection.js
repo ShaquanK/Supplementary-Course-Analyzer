@@ -41,19 +41,21 @@ class CollectionAPI {
   };
 
   /**
-   * Syncs course data to the courses collection in firebase
+   * Syncs course data to the courses collection in firebase with semester and year included
    *
    * @param Array courses - The course objects to be updated or created
+   * @param String semester - The semester identifier (e.g., "Fall", "Spring")
+   * @param String year - The academic year (e.g., "2024-25")
    *
    */
-  syncDataToFirebase = async function (courses) {
+  syncDataToFirebase = async function (courses, semester, year) {
     if (courses) {
       for (const [courseName, sections] of Object.entries(courses)) {
         const courseRef = collection(db, "courses");
 
         for (const section of sections) {
-          // Create a unique ID based on course name, section, and days
-          const sectionId = `${courseName}-${section.Section}-${section.Days}`;
+          // Create a unique ID based on course name, section, days, semester, and year
+          const sectionId = `${courseName}-${section.Section}-${section.Days}-${semester}-${year}`;
 
           // Create a reference to the document
           const sectionRef = doc(courseRef, sectionId);
@@ -70,6 +72,8 @@ class CollectionAPI {
               start_time: section.StartTime || "",
               end_time: section.EndTime || "",
               building: section.Building || "",
+              semester: semester || "Unknown",
+              year: year || "Unknown",
             },
             { merge: true }
           );

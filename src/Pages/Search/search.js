@@ -82,7 +82,7 @@ export const Search = () => {
       );
       setData(result.data);
 
-      await collectionAPI.syncDataToFirebase(result?.data);
+      await collectionAPI.syncDataToFirebase(result?.data,"Fall", "2024-25");
 
       const retrievedCourses = await collectionAPI.getCollection("courses");
 

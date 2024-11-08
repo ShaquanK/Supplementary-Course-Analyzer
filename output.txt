@@ -1,0 +1,48 @@
+CHEM 1A
+   Section Seats Days          Instructor StartTime EndTime Building
+0       01    42  MWF   Mack,Dr Jeffrey A    0900AM  0950AM      MND
+1       02     2    M   Mack,Dr Jeffrey A    1100AM  1150AM      SQU
+2       03     2    W   Mack,Dr Jeffrey A    1100AM  0130PM      SQU
+3       04     6    M   Mack,Dr Jeffrey A    0200PM  0250PM      SQU
+4       05     6    W   Mack,Dr Jeffrey A    0200PM  0430PM      SQU
+5       06     1    T   Dragomir,Elisa M.    0730AM  0820AM      SQU
+6       06     1    T                        0730AM  0820AM      SQU
+7       07     1    R                        0730AM  1000AM      SQU
+8       07     1    R   Dragomir,Elisa M.    0730AM  1000AM      SQU
+9       08     2    M         Graves,Ryan    1100AM  1150AM      MND
+10      08     2    M                        1100AM  1150AM      MND
+11      09     2    W         Graves,Ryan    1100AM  0130PM      SQU
+12      09     2    W                        1100AM  0130PM      SQU
+13      10     7    M                        0200PM  0250PM      MND
+14      10     7    M           Brown,Sam    0200PM  0250PM      MND
+15      11     7    W           Brown,Sam    0200PM  0430PM      SQU
+16      11     7    W                        0200PM  0430PM      SQU
+17      14     4   TR  Peebles,Rebecca A.    0130PM  0245PM      MND
+18      15     1    T                        1030AM  1120AM       DH
+19      15     1    T                        1030AM  1120AM       DH
+20      15     1    T    Al-Rakabi,Arwa K    1030AM  1120AM       DH
+21      16     1    R                        1030AM  0100PM      SQU
+22      16     1    R                        1030AM  0100PM      SQU
+23      16     1    R    Al-Rakabi,Arwa K    1030AM  0100PM      SQU
+24      17     2    T   Mack,Dr Jeffrey A    0300PM  0350PM      SQU
+25      17     2    T                        0300PM  0350PM      SQU
+26      18     2    R                        0300PM  0530PM      SQU
+27      18     2    R   Mack,Dr Jeffrey A    0300PM  0530PM      SQU
+28      21     0    M                        0600PM  0650PM      SQU
+29      21     0    M                        0600PM  0650PM      SQU
+30      21     0    M  Mendiola,Victor A.    0600PM  0650PM      SQU
+31      22     0    W                        0600PM  0830PM      SQU
+32      22     0    W                        0600PM  0830PM      SQU
+33      22     0    W  Mendiola,Victor A.    0600PM  0830PM      SQU
+34      23     0    T      Huerta,Juan A.    0300PM  0350PM      RVR
+35      23     0    T                        0300PM  0350PM      RVR
+36      23     0    T                        0300PM  0350PM      RVR
+37      24     0    R      Huerta,Juan A.    0300PM  0530PM      SQU
+38      24     0    R                        0300PM  0530PM      SQU
+39      24     0    R                        0300PM  0530PM      SQU
+40      25     1    T      Huerta,Juan A.    1030AM  1120AM      LIB
+41      25     1    T                        1030AM  1120AM      LIB
+42      25     1    T                        1030AM  1120AM      LIB
+43      26     1    R      Huerta,Juan A.    1030AM  0100PM      SQU
+44      26     1    R                        1030AM  0100PM      SQU
+45      26     1    R                        1030AM  0100PM      SQU

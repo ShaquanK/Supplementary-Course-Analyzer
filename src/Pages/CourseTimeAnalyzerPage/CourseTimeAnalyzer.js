@@ -103,7 +103,7 @@ const handleTableChange = (event) => {
         {selectedTable === "math12" && (
           <Box display="flex" justifyContent="space-between" p={2}>
             <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Typography variant="subtitle1">MWF Time Slots: number of courses running at a Time</Typography>
               <Table size="small">
                 <TableBody>
                   {Object.entries(Math12TimeSlotCounts.MWF).map(([slot, count], idx) => (

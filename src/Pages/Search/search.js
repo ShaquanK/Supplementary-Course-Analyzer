@@ -19,7 +19,8 @@ import {
   Typography,
   InputAdornment,
   IconButton,
-  Box,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import uniq from "lodash/uniq";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -63,6 +64,7 @@ export const Search = () => {
     instructor: "",
     time: "",
     days: "",
+    availableSeats: false,
   });
 
   const headers =
@@ -80,7 +82,7 @@ export const Search = () => {
       );
       setData(result.data);
 
-      await collectionAPI.syncDataToFirebase(result?.data);
+      await collectionAPI.syncDataToFirebase(result?.data,"Fall", "2024-25");
 
       const retrievedCourses = await collectionAPI.getCollection("courses");
 
@@ -101,13 +103,12 @@ export const Search = () => {
     }, 500);
   }, [allCourses]);
 
-  useEffect(() => {
-    setLoading(true);
-    handleFilterCourses();
-  }, [filter]);
-
-  const handleFilterCourses = () => {
+  const handleFilterCourses = useCallback(() => {
     const filtered = allCourses.filter((course) => {
+      const availableMatch = filter.availableSeats
+        ? parseInt(course.seats) > 0
+        : parseInt(course.seats) === 0;
+
       const keywordMatch = course.course_name
         .toLowerCase()
         .includes(query.toLowerCase());
@@ -124,11 +125,29 @@ export const Search = () => {
         setLoading(false);
       }, 500);
 
-      return keywordMatch && professorMatch && timeMatch && daysMatch;
+      return (
+        keywordMatch &&
+        professorMatch &&
+        timeMatch &&
+        daysMatch &&
+        availableMatch
+      );
     });
 
     setFilteredCourses(filtered);
-  };
+  }, [
+    allCourses,
+    filter.availableSeats,
+    filter.days,
+    filter.instructor,
+    filter.time,
+    query,
+  ]);
+
+  useEffect(() => {
+    setLoading(true);
+    handleFilterCourses();
+  }, [filter, handleFilterCourses]);
 
   const professorOptions = useMemo(() => {
     const professors = allCourses.map((course) => course.instructor);
@@ -256,6 +275,21 @@ export const Search = () => {
             </Grid>
           ) : filteredCourses?.length >= 1 ? (
             <Grid container>
+              <FormControlLabel
+                value="end"
+                control={
+                  <Switch
+                    color="primary"
+                    checked={filter.availableSeats}
+                    onChange={(v) =>
+                      handleFilterSelect("availableSeats", v.target.checked)
+                    }
+                  />
+                }
+                label="Show available classes"
+                labelPlacement="start"
+                style={{ marginLeft: "auto" }}
+              />
               <TableContainer>
                 <Table>
                   <TableBody>

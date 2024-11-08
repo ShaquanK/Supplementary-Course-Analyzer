@@ -16,42 +16,17 @@ import About from "./Pages/About/About";
 import RegisterMainPage from "./Pages/RegistrationPage/register";
 import { Search } from "./Pages/Search/search";
 import app from "./utils/firebase";
-
+import ManageUser from "./Pages/ManageUser/ManageUser";
 //route authentication
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { AuthProvider } from "./utils/AuthContext";
+import RouteProvider from "./utils/routes";
 
 function App() {
   return (
     <AuthProvider>
       <div>
-        <HashRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/Register" element={<RegisterMainPage />} />
-            <Route path="/Login" element={<LoginMainPage />} />
-
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<HomeMainPage />} />
-              <Route
-                path="/CourseTimeAnalyzer"
-                element={<CourseTimeAnalyzer />}
-              />
-              <Route path="/Creators" element={<CreatorsMainPage />} />
-              <Route path="/SourceData" element={<SourceDataMainPage />} />
-              <Route
-                path="/StudentEnrollmentAnalyzer"
-                element={<StudentEnrollmentAnalyzerMainPage />}
-              />
-              <Route
-                path="/SupCourseAnalyzer"
-                element={<SupCourseAnalyzerMainPage />}
-              />
-              <Route path="/search" element={<Search />} />
-            </Route>
-          </Routes>
-        </HashRouter>
+        <RouteProvider />
       </div>
     </AuthProvider>
   );

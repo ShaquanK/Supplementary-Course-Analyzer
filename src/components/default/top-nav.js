@@ -32,10 +32,9 @@ const menuOptions = [
     path: "/StudentEnrollmentAnalyzer",
   },
   { label: "Sup. Course Analyzer", path: "/SupCourseAnalyzer" },
-  
+  { label: "User List", path: "/users" },
+  { label: "Manage User", path: "/ManageUser" },
 ];
-
-
 
 export const TopNav = () => {
   const isLargeScreen = useMediaQuery((theme) => theme.breakpoints.up("lg"));
@@ -75,8 +74,8 @@ export const TopNav = () => {
   const handleLogout = async () => {
     try {
       console.log("Logout button clicked");
-      await signOut(auth); 
-      setUser(null); 
+      await signOut(auth);
+      setUser(null);
       console.log("User successfully logged out");
     } catch (error) {
       console.error("Error logging out:", error);
@@ -231,7 +230,7 @@ export const TopNav = () => {
                   >
                     <ListItemText primary="Logout" />
                   </ListItemButton>
-                  </ListItem>
+                </ListItem>
               )}
             </List>
           </Box>

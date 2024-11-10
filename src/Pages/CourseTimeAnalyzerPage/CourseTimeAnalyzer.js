@@ -1,408 +1,266 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import {
+  Button,
   Card,
   Grid,
+  IconButton,
+  InputAdornment,
   Stack,
-  TableContainer,
   TablePagination,
   TextField,
-  Autocomplete,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Button,
-  Accordion,
-  Paper,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
-  InputAdornment,
-  IconButton,
-  Box,
-  MenuItem,
-  Select,
 } from "@mui/material";
-import uniq from "lodash/uniq";
-import CircularProgress from "@mui/material/CircularProgress";
-
-import SearchIcon from "@mui/icons-material/Search";
-import {useMath29TimeSlotCounts} from "./components/Analyzers/Math29";
-import {useMath12TimeSlotCounts} from "./components/Analyzers/Math12";
-import {useMath30TimeSlotCounts} from "./components/Analyzers/Math30";
-import {useMath31TimeSlotCounts} from "./components/Analyzers/Math31";
-import {useMath32TimeSlotCounts} from "./components/Analyzers/Math32";
-import {useBio25TimeSlotCounts} from "./components/Analyzers/Bio25";
-import {useBio26TimeSlotCounts} from "./components/Analyzers/Bio26";
-import {useBio131TimeSlotCounts} from "./components/Analyzers/Bio131";
-import {useChem4TimeSlotCounts} from "./components/Analyzers/Chem4";
-
-
-
-
-
-
 import DefaultLayout from "../../components/default/layout";
-import { collectionAPI } from "../../routes/collection/collection";
+import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import { Table, TableBody, TableCell, TableRow } from "@mui/material";
+import { courses } from "../../courses";
 
-import { ExpandMore } from "@mui/icons-material";
-import axios from "axios";
+const CourseTimeAnalyzer = () => {
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTimeSlots, setFilteredTimeSlots] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [editingRow, setEditingRow] = useState(null); // New state for tracking which row is being edited
+  const [editedSlot, setEditedSlot] = useState({}); // New state for storing edited slot
 
+  const handleSearch = () => {
+    const filtered = timeSlots.filter(
+      (slot) =>
+        slot.days.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        slot.timeSlot.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredTimeSlots(filtered);
+    setPage(0);
+  };
 
+  useEffect(() => {
+    const analyzeCourses = () => {
+      const slots = {};
 
+      courses.forEach((course) => {
+        const { days, time, students } = course;
+        const key = `${days} ${time}`;
 
+        if (!slots[key]) {
+          slots[key] = { days, timeSlot: time, students: 0 };
+        }
 
-export const CourseTimeAnalyzer = () => {
-  const [selectedTable, setSelectedTable] = useState("math12");
-  const Math12TimeSlotCounts = useMath12TimeSlotCounts();
-  const Math29TimeSlotCounts = useMath29TimeSlotCounts();
-  const Math30TimeSlotCounts = useMath30TimeSlotCounts();
-  const Math31TimeSlotCounts = useMath31TimeSlotCounts();
-  const Math32TimeSlotCounts = useMath32TimeSlotCounts();
-  const Bio25TimeSlotCounts = useBio25TimeSlotCounts();
-  const Bio26TimeSlotCounts = useBio26TimeSlotCounts();
-  const Bio131TimeSlotCounts = useBio131TimeSlotCounts();
-  const Chem4TimeSlotCounts = useChem4TimeSlotCounts();
+        slots[key].students += students;
+      });
 
+      const timeSlotsArray = Object.values(slots);
 
+      setTimeSlots(timeSlotsArray);
+      setFilteredTimeSlots(timeSlotsArray);
+    };
 
+    analyzeCourses();
+  }, []);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
-  
-const handleTableChange = (event) => {
-  setSelectedTable(event.target.value);
-};
+  const handleEditClick = (index) => {
+    setEditingRow(index);
+    setEditedSlot(filteredTimeSlots[index]); // Populate the editedSlot state with current row data
+  };
+
+  const handleSaveClick = (index) => {
+    const updatedTimeSlots = [...filteredTimeSlots];
+    updatedTimeSlots[index] = editedSlot; // Update the specific row with edited data
+    setFilteredTimeSlots(updatedTimeSlots);
+    setEditingRow(null); // Exit edit mode
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditedSlot((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
-    <div>
-      <DefaultLayout />
-      <Box mb={2} display="flex" flexDirection="column" alignItems="center">
-        <Typography variant="h6">Select Data Table</Typography>
-        <Select value={selectedTable} onChange={handleTableChange} fullWidth>
-          
-          <MenuItem value="math29">Math 29 Time Slots</MenuItem>
-          <MenuItem value="math12">Math 12 Time Slots</MenuItem>
-          <MenuItem value="math30">Math 30 Time Slots</MenuItem>
-          <MenuItem value="math31">Math 31 Time Slots</MenuItem>
-          <MenuItem value="math32">Math 32 Time Slots</MenuItem>
-          <MenuItem value="Bio25">Bio 25 Time Slots</MenuItem>
-          <MenuItem value="Bio26">Bio 26 Time Slots</MenuItem>
-          <MenuItem value="Bio131">Bio 131 Time Slots</MenuItem>
-          <MenuItem value="chem4">Chem 4 Time Slots</MenuItem>
-
-
-
-
-        </Select>
-      </Box>
-      <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-        
-        
-
-        {selectedTable === "math12" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots: number of courses running at a Time</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math12TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
+    <DefaultLayout>
+      <Stack p={3} spacing={2}>
+        <Card sx={{ p: 1 }}>
+          <TextField
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              width: {
+                xs: "100%",
+                md: "300px",
+              },
+            }}
+            variant="outlined"
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter") {
+                ev.preventDefault();
+                handleSearch();
+              }
+            }}
+            label="Search Time Slots"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="search"
+                    onClick={handleSearch}
+                    sx={{
+                      backgroundColor: "#e0e0e0",
+                      height: "40px",
+                      width: "40px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Card>
+        <Card sx={{ p: 1 }}>
+          <Grid container>
+            <Table>
+              <TableBody>
+                {filteredTimeSlots
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((slot, index) => (
+                    <React.Fragment key={index}>
+                      <TableRow style={{ height: "20px" }}>
+                        <TableCell
+                          colSpan={4}
+                          style={{ border: "none", padding: 0 }}
+                        ></TableCell>
+                      </TableRow>
+                      <TableRow
+                        style={{
+                          backgroundColor: "#333333",
+                        }}
+                      >
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Day(s)
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Time(s)
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          # of Students In Class
+                        </TableCell>
+                        <TableCell style={{ color: "#fff" }}>Actions</TableCell>
+                      </TableRow>
+                      <TableRow
+                        key={index}
+                        style={{ backgroundColor: "#eae9e8" }}
+                      >
+                        {/* Editable cells or static cells */}
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {editingRow === index ? (
+                            <TextField
+                              value={editedSlot.days}
+                              onChange={(e) =>
+                                handleInputChange("days", e.target.value)
+                              }
+                            />
+                          ) : (
+                            slot.days
+                          )}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {editingRow === index ? (
+                            <TextField
+                              value={editedSlot.timeSlot}
+                              onChange={(e) =>
+                                handleInputChange("timeSlot", e.target.value)
+                              }
+                            />
+                          ) : (
+                            slot.timeSlot
+                          )}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {editingRow === index ? (
+                            <TextField
+                              value={editedSlot.students}
+                              onChange={(e) =>
+                                handleInputChange("students", e.target.value)
+                              }
+                            />
+                          ) : (
+                            slot.students
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editingRow === index ? (
+                            <IconButton
+                              aria-label="save"
+                              onClick={() => handleSaveClick(index)}
+                            >
+                              <SaveIcon />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              aria-label="edit"
+                              onClick={() => handleEditClick(index)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
                   ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math12TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-
-</TableContainer>
-
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "math31" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math31TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math31TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "Bio26" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio26TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio26TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "chem4" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Chem4TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots </Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Chem4TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "Bio131" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio131TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio131TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "Bio25" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio25TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Bio25TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "math32" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math32TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math32TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "math29" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math29TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math29TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-
-
-<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
-{selectedTable === "math30" && (
-          <Box display="flex" justifyContent="space-between" p={2}>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">MWF Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math30TimeSlotCounts.MWF).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            <Box width="48%" component={Paper} p={2}>
-              <Typography variant="subtitle1">TR Time Slots</Typography>
-              <Table size="small">
-                <TableBody>
-                  {Object.entries(Math30TimeSlotCounts.TR).map(([slot, count], idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{slot}</TableCell>
-                      <TableCell>{count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Box>
-        )}
-</TableContainer>
-    </div>
+              </TableBody>
+            </Table>
+            <Grid item xs={12}>
+              <TablePagination
+                fullWidth
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredTimeSlots.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Grid>
+          </Grid>
+        </Card>
+      </Stack>
+    </DefaultLayout>
   );
 };
 

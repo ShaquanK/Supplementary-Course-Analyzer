@@ -29,7 +29,6 @@ sac_link = sac_link = WebDriverWait(driver, 10).until(
 )
 driver.execute_script("arguments[0].scrollIntoView(true);", sac_link)
 sac_link.click()
-time.sleep(3)
 driver.back()
 time.sleep(3)
 #Tests link to sac state to apply
@@ -42,6 +41,7 @@ time.sleep(3)
 driver.back()
 time.sleep(3)
 #Tests link to sac state experience page
+WebDriverWait(driver, 10).until(EC.invisibility_of_element((By.CLASS_NAME, 'MuiAlert-message')))
 experience_link = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '/html/body/div/div/div/div[1]/div[1]/nav/li[2]/a'))
 )
@@ -50,6 +50,7 @@ time.sleep(3)
 driver.back()
 time.sleep(3)
 #Tests link to sac state give page
+WebDriverWait(driver, 10).until(EC.invisibility_of_element((By.CLASS_NAME, 'MuiAlert-message')))
 give_link = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '/html/body/div/div/div/div[1]/div[1]/nav/li[3]/a'))
 )

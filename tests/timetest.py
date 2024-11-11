@@ -28,7 +28,7 @@ time.sleep(3)
 cta_button = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Course Time Analyzer")))
 cta_button.click()
 #clicks into search bar and searches classes for 10:30
-search_bar = wait.until(EC.element_to_be_clickable((By.XPATH,' //*[@id=":r7:"]')))
+search_bar = wait.until(EC.element_to_be_clickable((By.XPATH,' //*[@id=":r1:"]')))
 search_bar.send_keys("10:30" + Keys.ENTER)
 time.sleep(5)
 #Clears search bar and types into search bar 12:00

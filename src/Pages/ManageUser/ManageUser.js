@@ -1,8 +1,31 @@
 import React, { useState } from "react";
 import DefaultLayout from "../../components/default/layout";
-import { Grid, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, IconButton, InputAdornment, Snackbar, Alert } from "@mui/material";
+import {
+  Grid,
+  Stack,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  IconButton,
+  InputAdornment,
+  Snackbar,
+  Alert,
+  Card,
+  Box,
+} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { getAuth, reauthenticateWithCredential, EmailAuthProvider, updatePassword, updateEmail, sendEmailVerification } from "firebase/auth";
+import {
+  getAuth,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+  updateEmail,
+  sendEmailVerification,
+} from "firebase/auth";
 
 function ManageUser() {
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
@@ -34,7 +57,10 @@ function ManageUser() {
   };
 
   const handleUpdatePassword = async () => {
-    const reauthenticated = await handleReauthenticate(currentEmail, oldPassword);
+    const reauthenticated = await handleReauthenticate(
+      currentEmail,
+      oldPassword
+    );
     if (reauthenticated) {
       updatePassword(auth.currentUser, newPassword)
         .then(() => {
@@ -51,10 +77,12 @@ function ManageUser() {
         });
     }
   };
-  
 
   const handleUpdateEmail = async () => {
-    const reauthenticated = await handleReauthenticate(currentEmail, oldPassword);
+    const reauthenticated = await handleReauthenticate(
+      currentEmail,
+      oldPassword
+    );
 
     if (reauthenticated) {
       try {
@@ -66,20 +94,24 @@ function ManageUser() {
 
         // Update email after successful reauthentication
         await updateEmail(auth.currentUser, newEmail);
-        
+
         // Send the verification email
         await sendEmailVerification(auth.currentUser);
 
         // Save the new email locally for later use
         window.localStorage.setItem("newEmailForSignIn", newEmail);
 
-        setSnackbarMessage("A verification email has been sent to the new address. Please confirm to finalize the email change.");
+        setSnackbarMessage(
+          "A verification email has been sent to the new address. Please confirm to finalize the email change."
+        );
         setSnackbarSeverity("info");
         setSnackbarOpen(true);
         setOpenEmailDialog(false);
       } catch (error) {
         console.error("Failed to send verification email:", error);
-        setSnackbarMessage(`Failed to send verification email: ${error.message}`);
+        setSnackbarMessage(
+          `Failed to send verification email: ${error.message}`
+        );
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       }
@@ -87,141 +119,157 @@ function ManageUser() {
   };
 
   return (
-    <DefaultLayout>
-      <div className="App">
-        <h1><span>Manage User Information</span></h1>
-        <Grid container sx={{ flexDirection: { xs: "column", md: "row" } }}>
-          <Grid item md={6} sx={{ bgcolor: (theme) => theme.palette.primary.main, minHeight: "750px", p: 3 }}>
-            <Stack spacing={3}>
-              <Typography variant="h3" sx={{ color: "white" }}>Manage Account</Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: "white", cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => setOpenPasswordDialog(true)}
-              >
-                Manage Password
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: "white", cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => setOpenEmailDialog(true)}
-              >
-                Manage Email
-              </Typography>
-            </Stack>
-          </Grid>
-        </Grid>
-
-        {/* Password Update Dialog */}
-        {/* Password Update Dialog */}
-<Dialog open={openPasswordDialog} onClose={() => setOpenPasswordDialog(false)}>
-  <DialogTitle>Update Password</DialogTitle>
-  <DialogContent>
-    {/* Current Email */}
-    <TextField
-      label="Current Email"
-      type="email"
-      fullWidth
-      margin="dense"
-      value={currentEmail}
-      onChange={(e) => setCurrentEmail(e.target.value)}
-    />
-    {/* Old Password */}
-    <TextField
-      label="Old Password"
-      type={showOldPassword ? "text" : "password"}
-      fullWidth
-      margin="dense"
-      value={oldPassword}
-      onChange={(e) => setOldPassword(e.target.value)}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton
-              onClick={() => setShowOldPassword(!showOldPassword)}
-              edge="end"
-            >
-              {showOldPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />
-    {/* New Password */}
-    <TextField
-      label="New Password"
-      type={showNewPassword ? "text" : "password"}
-      fullWidth
-      margin="dense"
-      value={newPassword}
-      onChange={(e) => setNewPassword(e.target.value)}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton
-              onClick={() => setShowNewPassword(!showNewPassword)}
-              edge="end"
-            >
-              {showNewPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setOpenPasswordDialog(false)}>Cancel</Button>
-    <Button onClick={handleUpdatePassword}>Update Password</Button>
-  </DialogActions>
-</Dialog>
-
-
-        {/* Email Update Dialog */}
-        <Dialog open={openEmailDialog} onClose={() => setOpenEmailDialog(false)}>
-          <DialogTitle>Update Email</DialogTitle>
-          <DialogContent>
-            <TextField
-              label="Current Email"
-              type="email"
-              fullWidth
-              margin="dense"
-              value={currentEmail}
-              onChange={(e) => setCurrentEmail(e.target.value)} // New input field for current email
-            />
-            <TextField
-              label="Old Password"
-              type="password"
-              fullWidth
-              margin="dense"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-            />
-            <TextField
-              label="New Email"
-              type="email"
-              fullWidth
-              margin="dense"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenEmailDialog(false)}>Cancel</Button>
-            <Button onClick={handleUpdateEmail}>Update Email</Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Snackbar */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={() => setSnackbarOpen(false)}
+    <DefaultLayout title=" Manage User Information">
+      <Grid container sx={{ flexDirection: { xs: "column", md: "row" } }}>
+        <Grid
+          item
+          md={6}
+          sx={{
+            bgcolor: (theme) => theme.palette.primary.main,
+            minHeight: "750px",
+            p: 3,
+            borderRadius: "10px",
+          }}
         >
-          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: "100%" }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </div>
+          <Stack spacing={3}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "white",
+                cursor: "pointer",
+                textDecoration: "underline",
+              }}
+              onClick={() => setOpenPasswordDialog(true)}
+            >
+              Manage Password
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "white",
+                cursor: "pointer",
+                textDecoration: "underline",
+              }}
+              onClick={() => setOpenEmailDialog(true)}
+            >
+              Manage Email
+            </Typography>
+          </Stack>
+        </Grid>
+      </Grid>
+      <Dialog
+        open={openPasswordDialog}
+        onClose={() => setOpenPasswordDialog(false)}
+      >
+        <DialogTitle>Update Password</DialogTitle>
+        <DialogContent>
+          {/* Current Email */}
+          <TextField
+            label="Current Email"
+            type="email"
+            fullWidth
+            margin="dense"
+            value={currentEmail}
+            onChange={(e) => setCurrentEmail(e.target.value)}
+          />
+          {/* Old Password */}
+          <TextField
+            label="Old Password"
+            type={showOldPassword ? "text" : "password"}
+            fullWidth
+            margin="dense"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowOldPassword(!showOldPassword)}
+                    edge="end"
+                  >
+                    {showOldPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          {/* New Password */}
+          <TextField
+            label="New Password"
+            type={showNewPassword ? "text" : "password"}
+            fullWidth
+            margin="dense"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    edge="end"
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenPasswordDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdatePassword}>Update Password</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Email Update Dialog */}
+      <Dialog open={openEmailDialog} onClose={() => setOpenEmailDialog(false)}>
+        <DialogTitle>Update Email</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Current Email"
+            type="email"
+            fullWidth
+            margin="dense"
+            value={currentEmail}
+            onChange={(e) => setCurrentEmail(e.target.value)} // New input field for current email
+          />
+          <TextField
+            label="Old Password"
+            type="password"
+            fullWidth
+            margin="dense"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+          />
+          <TextField
+            label="New Email"
+            type="email"
+            fullWidth
+            margin="dense"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEmailDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateEmail}>Update Email</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DefaultLayout>
   );
 }

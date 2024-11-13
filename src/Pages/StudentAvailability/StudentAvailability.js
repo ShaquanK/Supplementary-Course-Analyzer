@@ -5,6 +5,9 @@ import {
   addDoc,
   query,
   where,
+  deleteDoc,
+  doc,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from "../../utils/firebase";
 import {
@@ -21,8 +24,10 @@ import {
   List,
   ListItem,
   ListItemText,
+  IconButton,
 } from '@mui/material';
 import DefaultLayout from "../../components/default/layout";
+import { Delete, Edit } from '@mui/icons-material';
 
 function StudentAvailability() {
   const [courses, setCourses] = useState([]);
@@ -41,6 +46,7 @@ function StudentAvailability() {
     { startTime: '', endTime: '' },
   ]);
   const [availabilityData, setAvailabilityData] = useState([]);
+  const [editingStudentId, setEditingStudentId] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -70,7 +76,7 @@ function StudentAvailability() {
           where('courseId', '==', selectedCourse)
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => doc.data());
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setAvailabilityData(data);
       } catch (error) {
         console.error('Error fetching availability data:', error);
@@ -108,6 +114,76 @@ function StudentAvailability() {
 
   const addTimeSlot = () => {
     setTimeSlots([...timeSlots, { startTime: '', endTime: '' }]);
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await deleteDoc(doc(db, 'coursesPAL', courseId));
+      setCourses(courses.filter(course => course.id !== courseId));
+      if (selectedCourse === courseId) setSelectedCourse('');
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    }
+  };
+
+  const handleDeleteStudent = async (studentId) => {
+    try {
+      await deleteDoc(doc(db, 'studentAvailability', studentId));
+      setAvailabilityData(availabilityData.filter(student => student.id !== studentId));
+    } catch (error) {
+      console.error('Error deleting student:', error);
+    }
+  };
+
+  const handleEditStudent = (student) => {
+    setEditingStudentId(student.id);
+    setStudentName(student.studentName);
+    setDays(
+      student.days.reduce((acc, day) => ({ ...acc, [day]: true }), {
+        Monday: false,
+        Tuesday: false,
+        Wednesday: false,
+        Thursday: false,
+        Friday: false,
+      })
+    );
+    setTimeSlots(student.timeSlots);
+  };
+
+  const handleUpdateStudent = async () => {
+    if (!editingStudentId) return;
+
+    const selectedDays = Object.keys(days).filter(day => days[day]);
+    if (selectedDays.length === 0 || !studentName.trim()) return;
+
+    const updatedData = {
+      studentName,
+      days: selectedDays,
+      timeSlots,
+    };
+
+    try {
+      await updateDoc(doc(db, 'studentAvailability', editingStudentId), updatedData);
+      setAvailabilityData(
+        availabilityData.map(student =>
+          student.id === editingStudentId
+            ? { ...student, ...updatedData }
+            : student
+        )
+      );
+      setEditingStudentId(null);
+      setStudentName('');
+      setDays({
+        Monday: false,
+        Tuesday: false,
+        Wednesday: false,
+        Thursday: false,
+        Friday: false,
+      });
+      setTimeSlots([{ startTime: '', endTime: '' }]);
+    } catch (error) {
+      console.error('Error updating student:', error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -206,6 +282,13 @@ function StudentAvailability() {
               {courses.map(course => (
                 <MenuItem key={course.id} value={course.id}>
                   {course.name}
+                  <IconButton
+                    onClick={() => handleDeleteCourse(course.id)}
+                    color="secondary"
+                    style={{ marginLeft: '8px' }}
+                  >
+                    <Delete />
+                  </IconButton>
                 </MenuItem>
               ))}
             </Select>
@@ -229,29 +312,42 @@ function StudentAvailability() {
             </Button>
           </Box>
         </Box>
-
+  
         {selectedCourse && (
           <Box marginBottom={4}>
-            <Typography variant="h5">Enter Student Availability</Typography>
+            <Typography variant="h5">
+              {editingStudentId ? "Edit Student Availability" : "Enter Student Availability"}
+            </Typography>
             {errorMessage.length > 0 && (
               <Box marginBottom={2}>
-                  <Typography color="error" variant="h6" style={{ fontWeight: 'bold', 
-                    fontSize: '1.2rem', backgroundColor: '#fdd', padding: '8px', borderRadius: '4px' }}>
+                <Typography
+                  color="error"
+                  variant="h6"
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                    backgroundColor: '#fdd',
+                    padding: '8px',
+                    borderRadius: '4px',
+                  }}
+                >
                   Please fix the following errors:
                 </Typography>
                 <List dense>
-                    {errorMessage.map((error, index) => (
-                        <ListItem key={index}>
-                        <ListItemText
-                            primary={error}
-                            primaryTypographyProps={{ style: { fontSize: '1.1rem', fontWeight: 'bold' } }}
-                        />
-                        </ListItem>
-                    ))}
-                    </List>
-                </Box>
-                )}
-
+                  {errorMessage.map((error, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={error}
+                        primaryTypographyProps={{
+                          style: { fontSize: '1.1rem', fontWeight: 'bold' },
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+  
             <TextField
               label="Student Name"
               value={studentName}
@@ -312,29 +408,45 @@ function StudentAvailability() {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={editingStudentId ? handleUpdateStudent : handleSubmit}
               style={{ marginTop: 16 }}
             >
-              Submit Availability
+              {editingStudentId ? "Update Student" : "Submit Availability"}
             </Button>
           </Box>
         )}
-
+  
         {selectedCourse && (
           <Box>
             <Typography variant="h5">Student Availability</Typography>
-            {availabilityData.map((availability, index) => (
-              <Box key={index} border={1} padding={2} marginY={2}>
-                <Typography variant="h6">{availability.studentName}</Typography>
+            {availabilityData.map(student => (
+              <Box key={student.id} border={1} padding={2} marginY={2}>
+                <Typography variant="h6">{student.studentName}</Typography>
                 <Typography variant="subtitle1">
-                  Days: {availability.days.join(', ')}
+                  Days: {student.days.join(', ')}
                 </Typography>
                 <Typography variant="subtitle1">Time Slots:</Typography>
-                {availability.timeSlots.map((slot, idx) => (
+                {student.timeSlots.map((slot, idx) => (
                   <Typography key={idx}>
                     {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                   </Typography>
                 ))}
+                <Box>
+                  <Button
+                    onClick={() => handleEditStudent(student)}
+                    color="primary"
+                    startIcon={<Edit />}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => handleDeleteStudent(student.id)}
+                    color="secondary"
+                    startIcon={<Delete />}
+                  >
+                    Delete
+                  </Button>
+                </Box>
               </Box>
             ))}
           </Box>
@@ -342,6 +454,6 @@ function StudentAvailability() {
       </Box>
     </DefaultLayout>
   );
-}
+}  
 
 export default StudentAvailability;

@@ -26,12 +26,10 @@ const menuOptions = [
   { label: "Search", path: "/search" },
   { label: "Course Time Analyzer", path: "/CourseTimeAnalyzer" },
   { label: "Creators", path: "/Creators" },
-  { label: "Source Data", path: "/SourceData" },
   {
     label: "Student Enrollment Analyzer",
     path: "/StudentEnrollmentAnalyzer",
   },
-  { label: "Sup. Course Analyzer", path: "/SupCourseAnalyzer" },
   { label: "User List", path: "/users" },
   { label: "Manage User", path: "/ManageUser" },
 ];
@@ -63,23 +61,17 @@ export const TopNav = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      console.log("User is logged in:", currentUser);
       setUser(currentUser);
     });
 
-    console.log("User is logged out");
     return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
     try {
-      console.log("Logout button clicked");
       await signOut(auth);
       setUser(null);
-      console.log("User successfully logged out");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
+    } catch (error) {}
   };
   return (
     <Stack direction="column">
@@ -205,6 +197,7 @@ export const TopNav = () => {
                   disablePadding
                   component={RouterLink}
                   to={option.path}
+                  key={option.path}
                   sx={{
                     color: "white",
                     "&:hover": {

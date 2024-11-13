@@ -1,9 +1,16 @@
 import React from "react";
 import { Footer } from "./footer";
 import { TopNav } from "./top-nav";
-import { Grid, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Card,
+  Grid,
+  Stack,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 
-const DefaultLayout = ({ children }) => {
+const DefaultLayout = ({ title, children }) => {
   const isLargeScreen = useMediaQuery((theme) => theme.breakpoints.up("lg"));
   const containerWidth = isLargeScreen ? "1140px" : "100%";
 
@@ -12,7 +19,25 @@ const DefaultLayout = ({ children }) => {
       <TopNav />
       <Grid container justifyContent="center">
         <Grid item sx={{ width: containerWidth }}>
-          {children}
+          <Stack p={3} spacing={2}>
+            <Card sx={{ p: 2 }}>
+              {title && (
+                <Box mb={2}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontStyle: "italic",
+                      fontWeight: "bold",
+                      color: (theme) => theme.palette.primary.main,
+                    }}
+                  >
+                    {title}
+                  </Typography>
+                </Box>
+              )}
+              {children}
+            </Card>
+          </Stack>
         </Grid>
       </Grid>
       {/* <Footer /> */}

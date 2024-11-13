@@ -7,6 +7,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Stack,
+  Card,
+  Box,
+  Typography,
+  TablePagination,
 } from "@mui/material";
 import DefaultLayout from "../../components/default/layout";
 import { courses } from "../../courses";
@@ -34,8 +39,10 @@ function timeToMinutes(timeRange) {
   const [endHour, endMin] = end.split(/[:APM]/).filter(Boolean);
   const isPM = timeRange.includes("PM");
 
-  const startTimeInMinutes = (parseInt(startHour) % 12) * 60 + parseInt(startMin) + (isPM ? 720 : 0);
-  const endTimeInMinutes = (parseInt(endHour) % 12) * 60 + parseInt(endMin) + (isPM ? 720 : 0);
+  const startTimeInMinutes =
+    (parseInt(startHour) % 12) * 60 + parseInt(startMin) + (isPM ? 720 : 0);
+  const endTimeInMinutes =
+    (parseInt(endHour) % 12) * 60 + parseInt(endMin) + (isPM ? 720 : 0);
 
   return { start: startTimeInMinutes, end: endTimeInMinutes };
 }
@@ -43,8 +50,10 @@ function timeToMinutes(timeRange) {
 function findFreeTimePerCourse(students, courseId) {
   const timeSlots = new Map();
 
-  students.forEach(student => {
-    const enrolledCourse = student.courses.find(course => course.course_code === courseId);
+  students.forEach((student) => {
+    const enrolledCourse = student.courses.find(
+      (course) => course.course_code === courseId
+    );
     if (enrolledCourse) {
       const { days, time } = enrolledCourse;
       const timeRange = timeToMinutes(time);
@@ -84,44 +93,107 @@ function formatTime(minutes) {
 function StudentEnrollmentAnalyzerMainPage() {
   const [students, setStudents] = useState([]);
   const [courseFreeTimes, setCourseFreeTimes] = useState({});
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     const generatedStudents = generateStudentEnrollments(10, courses);
     setStudents(generatedStudents);
 
     const freeTimes = {};
-    courses.forEach(course => {
-      freeTimes[course.course_code] = findFreeTimePerCourse(generatedStudents, course.course_code);
+    courses.forEach((course) => {
+      freeTimes[course.course_code] = findFreeTimePerCourse(
+        generatedStudents,
+        course.course_code
+      );
     });
     setCourseFreeTimes(freeTimes);
   }, []);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   return (
-    <DefaultLayout>
-      <div className="App">
-        <h1>Open Times Based on Student Schedule</h1>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Course Name</TableCell>
-                <TableCell>Course Section</TableCell>
-                <TableCell>Open Availability</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {courses.map(course => (
-                <TableRow key={course.course_code}>
-                  <TableCell>{course.course_title}</TableCell>
-                  <TableCell>{course.section}</TableCell>
-                  <TableCell>
+    <DefaultLayout title="Open Times Based on Student Schedule">
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow
+              style={{
+                backgroundColor: "#333333",
+              }}
+            >
+              <TableCell
+                style={{
+                  borderRight: "2px solid #E5E4E2",
+                  color: "#fff",
+                }}
+              >
+                Course Name
+              </TableCell>
+              <TableCell
+                style={{
+                  borderRight: "2px solid #E5E4E2",
+                  color: "#fff",
+                }}
+              >
+                Course Section
+              </TableCell>
+              <TableCell
+                style={{
+                  borderRight: "2px solid #E5E4E2",
+                  color: "#fff",
+                }}
+              >
+                Open Availability
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {courses
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((course) => (
+                <TableRow
+                  key={course.course_code}
+                  sx={{
+                    "&:nth-of-type(even)": { backgroundColor: "#f9f9f9" },
+                  }}
+                >
+                  <TableCell
+                    style={{
+                      borderRight: "2px solid #E5E4E2",
+                    }}
+                  >
+                    {course.course_title}
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      borderRight: "2px solid #E5E4E2",
+                    }}
+                  >
+                    {course.section}
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      borderRight: "2px solid #E5E4E2",
+                    }}
+                  >
                     {courseFreeTimes[course.course_code]?.length > 0 ? (
                       <ul>
-                        {courseFreeTimes[course.course_code].map((slot, index) => (
-                          <li key={index}>
-                            {slot.day}: {formatTime(slot.start)} - {formatTime(slot.end)}
-                          </li>
-                        ))}
+                        {courseFreeTimes[course.course_code].map(
+                          (slot, index) => (
+                            <li key={index}>
+                              {slot.day}: {formatTime(slot.start)} -{" "}
+                              {formatTime(slot.end)}
+                            </li>
+                          )
+                        )}
                       </ul>
                     ) : (
                       "No available time slots"
@@ -129,15 +201,22 @@ function StudentEnrollmentAnalyzerMainPage() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
+          </TableBody>
+        </Table>
+        {/* Pagination */}
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={courses.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{ backgroundColor: (theme) => theme.palette.grey[100] }}
+        />
+      </TableContainer>
     </DefaultLayout>
   );
 }
 
 export default StudentEnrollmentAnalyzerMainPage;
-
-
-

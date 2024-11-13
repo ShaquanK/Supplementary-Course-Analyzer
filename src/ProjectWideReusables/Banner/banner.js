@@ -90,17 +90,6 @@ const Banner = () => {
               Creators{" "}
             </Button>
             <Button
-              href="/SourceData"
-              variant="contained"
-              sx={{
-                backgroundColor: "#486b7a",
-                color: "white",
-                "&:hover": { backgroundColor: "#124459" },
-              }}
-            >
-              Source Data{" "}
-            </Button>
-            <Button
               href="/StudentEnrollmentAnalyzer"
               variant="contained"
               sx={{
@@ -110,17 +99,6 @@ const Banner = () => {
               }}
             >
               Student Enrollment Analyzer{" "}
-            </Button>
-            <Button
-              href="/SupCourseAnalyzer"
-              variant="contained"
-              sx={{
-                backgroundColor: "#486b7a",
-                color: "white",
-                "&:hover": { backgroundColor: "#124459" },
-              }}
-            >
-              Sup Course Analyzer
             </Button>
             <Button
               href=" "

@@ -7,6 +7,7 @@ import {
   Alert,
   Box,
   IconButton,
+  Card,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useLocation } from "react-router-dom";
@@ -68,32 +69,49 @@ function HomeMainPage() {
   };
 
   return (
-    <DefaultLayout>
-      <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
-        <Stack spacing={2} mr={2}>
-          {notifications.map((notification, index) => (
-            <Alert
-              key={index}
-              severity={notification.severity}
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  onClick={() => handleClose(index)}
-                >
-                  <CloseIcon />
-                </IconButton>
-              }
-              sx={{ width: "100%" }}
-            >
-              {notification.message}
-            </Alert>
-          ))}
-        </Stack>
-      </Box>
-
+    <DefaultLayout title="CSUS Pal Course Analyzer">
       <Grid container sx={{ flexDirection: { xs: "column", md: "row" } }}>
-        <Grid item md={6} sx={{ p: 8 }} container>
+        <Grid
+          item
+          xs={12}
+          md={5}
+          sx={{
+            bgcolor: (theme) => theme.palette.primary.main,
+            minHeight: {
+              xs: "auto",
+              md: "750px",
+            },
+            p: 3,
+            borderRadius: "10px",
+          }}
+        >
+          <Stack spacing={3}>
+            <Typography
+              variant="body1"
+              sx={{ color: "white", fontSize: "1.2em" }}
+            >
+              The CSUS PAL program aims to support students in challenging STEM
+              courses by offering supplementary classes led by former students.
+              These classes, held in person, require campus classrooms that do
+              not conflict with core STEM courses. However, identifying suitable
+              times and classrooms poses a challenge due to the lack of software
+              to analyze scheduling data for STEM courses.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ color: "white", fontSize: "1.2em" }}
+            >
+              The Supplementary Course Analyzer aims to solve this problem by
+              providing a website that will analyze course times and determine
+              optimal times for supplementary courses, while minimizing
+              interference with major courses. We aim to make PAL courses more
+              accessible to students and help the PAL program accomplish their
+              goal of helping students learn.
+            </Typography>
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} md={7} sx={{ p: 3 }}>
           <Stack direction="column" spacing={0.5}>
             <Typography
               variant="h6"
@@ -134,50 +152,31 @@ function HomeMainPage() {
             <Button component="a" href="/Creators" sx={buttonStyle}>
               Creators
             </Button>
-            <Button component="a" href="/SourceData" sx={buttonStyle}>
-              Source Data
-            </Button>
-          </Stack>
-        </Grid>
-
-        <Grid
-          item
-          md={6}
-          sx={{
-            bgcolor: (theme) => theme.palette.primary.main,
-            minHeight: "750px",
-            p: 3,
-          }}
-        >
-          <Stack spacing={3}>
-            <Typography variant="h3" sx={{ color: "white" }}>
-              About Our Course Analyzer
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "white", fontSize: "1.2em" }}
-            >
-              The CSUS PAL program aims to support students in challenging STEM
-              courses by offering supplementary classes led by former students.
-              These classes, held in person, require campus classrooms that do
-              not conflict with core STEM courses. However, identifying suitable
-              times and classrooms poses a challenge due to the lack of software
-              to analyze scheduling data for STEM courses.
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "white", fontSize: "1.2em" }}
-            >
-              The Supplementary Course Analyzer aims to solve this problem by
-              providing a website that will analyze course times and determine
-              optimal times for supplementary courses, while minimizing
-              interference with major courses. We aim to make PAL courses more
-              accessible to students and help the PAL program accomplish their
-              goal of helping students learn.
-            </Typography>
           </Stack>
         </Grid>
       </Grid>
+      <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
+        <Stack spacing={2} mr={2}>
+          {notifications.map((notification, index) => (
+            <Alert
+              key={index}
+              severity={notification.severity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  onClick={() => handleClose(index)}
+                >
+                  <CloseIcon />
+                </IconButton>
+              }
+              sx={{ width: "100%" }}
+            >
+              {notification.message}
+            </Alert>
+          ))}
+        </Stack>
+      </Box>
     </DefaultLayout>
   );
 }

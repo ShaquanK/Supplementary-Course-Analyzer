@@ -14,6 +14,8 @@ import {
   Stack,
   Button,
   IconButton,
+  TablePagination,
+  Box,
 } from "@mui/material";
 import DefaultLayout from "../../components/default/layout";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,6 +24,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -38,6 +42,15 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   const handleEditUser = (user) => {
     console.log("Editing user:", user);
   };
@@ -53,86 +66,131 @@ const UserList = () => {
   };
 
   return (
-    <DefaultLayout>
-      <Stack p={3} spacing={2}>
-        <Card sx={{ p: 2 }}>
-          <Typography variant="h4">User List</Typography>
-          {loading ? (
-            <Grid
-              container
-              justifyContent="center"
-              alignItems="center"
-              style={{ height: "100px" }}
-            >
-              <CircularProgress />
-            </Grid>
-          ) : users.length > 0 ? (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Display Name</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Actions</TableCell>{" "}
-                    {/* New column for actions */}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.uid}>
-                      <TableCell>{user.displayName}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <IconButton
-                          onClick={handleEditUser}
-                          sx={{
-                            width: "40px",
-                            height: "40px",
-                            bgcolor: (theme) => theme.palette.primary.main,
-                            color: "white",
-                            padding: 0,
-                            mr: 1,
-                            minWidth: "0",
-                            "&:hover": {
-                              bgcolor: (theme) => theme.palette.primary.dark,
-                            },
-                          }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            handleDeleteUser(user?.uid);
-                          }}
-                          sx={{
-                            width: "40px",
-                            height: "40px",
-                            bgcolor: (theme) => theme.palette.secondary.main,
-                            color: "white",
-                            padding: 0,
-                            minWidth: "0",
-                            "&:hover": {
-                              bgcolor: (theme) => theme.palette.primary.dark,
-                            },
-                          }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+    <DefaultLayout title="User List">
+      {loading ? (
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          style={{ height: "100px" }}
+        >
+          <CircularProgress />
+        </Grid>
+      ) : users.length > 0 ? (
+        <TableContainer>
+          <Table>
+            {/* Table Header */}
+            <TableHead>
+              <TableRow
+                style={{
+                  backgroundColor: "#333333",
+                }}
+              >
+                <TableCell
+                  style={{
+                    borderRight: "2px solid #E5E4E2",
+                    color: "#fff",
+                  }}
+                >
+                  Display Name
+                </TableCell>
+                <TableCell
+                  style={{
+                    borderRight: "2px solid #E5E4E2",
+                    color: "#fff",
+                  }}
+                >
+                  Email
+                </TableCell>
+                <TableCell
+                  style={{
+                    borderRight: "2px solid #E5E4E2",
+                    color: "#fff",
+                  }}
+                >
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
 
-                        {/* </Button> */}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Grid container justifyContent="center" alignItems="center">
-              <Typography variant="h6">No Users Found</Typography>
-            </Grid>
-          )}
-        </Card>
-      </Stack>
+            {/* Table Body */}
+            <TableBody>
+              {users
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((user) => (
+                  <TableRow
+                    key={user.uid}
+                    sx={{
+                      "&:nth-of-type(even)": { backgroundColor: "#f9f9f9" },
+                    }}
+                  >
+                    <TableCell
+                      style={{
+                        borderRight: "2px solid #E5E4E2",
+                      }}
+                    >
+                      {user?.displayName ? (
+                        user.displayName
+                      ) : (
+                        <Typography
+                          variant="string"
+                          sx={{ fontStyle: "italic" }}
+                        >
+                          Not Set
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        borderRight: "2px solid #E5E4E2",
+                      }}
+                    >
+                      {user.email}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        borderRight: "2px solid #E5E4E2",
+                      }}
+                    >
+                      <IconButton
+                        onClick={() => handleDeleteUser(user?.uid)}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          bgcolor: (theme) => theme.palette.secondary.main,
+                          color: "white",
+                          padding: 0,
+                          minWidth: 0,
+                          "&:hover": {
+                            bgcolor: (theme) => theme.palette.secondary.dark,
+                          },
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+
+          {/* Pagination */}
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={users.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{ backgroundColor: (theme) => theme.palette.grey[100] }}
+          />
+        </TableContainer>
+      ) : (
+        <Grid container justifyContent="center" alignItems="center">
+          <Typography variant="h6">No Users Found</Typography>
+        </Grid>
+      )}
     </DefaultLayout>
   );
 };

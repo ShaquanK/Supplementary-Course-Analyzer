@@ -201,291 +201,280 @@ export const Search = () => {
   const handleAdvFilter = (advFilter) => setFilter({ ...filter, ...advFilter });
 
   return (
-    <DefaultLayout>
-      <Stack p={3} spacing={2}>
-        <Card sx={{ p: 1 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={3}>
-              <TextField
-                onChange={handleSearchWord}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    setLoading(true);
-                    handleFilterCourses(); // Trigger the filter action on Enter key press
-                  }
-                }}
-                fullWidth
-                variant="outlined"
-                label="Search By Name"
-                InputProps={{
-                  endAdornment: (
-                    <IconButton onClick={handleFilterCourses} position="end">
-                      <SearchIcon />
-                    </IconButton>
-                  ),
-                }}
-              />
-            </Grid>
+    <DefaultLayout title="Search Courses">
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={3}>
+          <TextField
+            onChange={handleSearchWord}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                setLoading(true);
+                handleFilterCourses(); // Trigger the filter action on Enter key press
+              }
+            }}
+            fullWidth
+            variant="outlined"
+            label="Search By Name"
+            InputProps={{
+              endAdornment: (
+                <IconButton onClick={handleFilterCourses} position="end">
+                  <SearchIcon />
+                </IconButton>
+              ),
+            }}
+          />
+        </Grid>
 
-            <Grid item xs={12} md={3}>
-              <Autocomplete
-                options={dayOptions}
-                renderInput={(params) => <TextField {...params} label="Day" />}
-                onChange={(_, value) => handleFilterSelect("days", value)}
-                plac
-              />
-            </Grid>
+        <Grid item xs={12} md={3}>
+          <Autocomplete
+            options={dayOptions}
+            renderInput={(params) => <TextField {...params} label="Day" />}
+            onChange={(_, value) => handleFilterSelect("days", value)}
+            plac
+          />
+        </Grid>
 
-            <Grid item xs={12} md={3}>
-              <Autocomplete
-                options={professorOptions}
-                renderInput={(params) => (
-                  <TextField {...params} label="Professor" />
-                )}
-                onChange={(_, value) => handleFilterSelect("instructor", value)}
-              />
-            </Grid>
+        <Grid item xs={12} md={3}>
+          <Autocomplete
+            options={professorOptions}
+            renderInput={(params) => (
+              <TextField {...params} label="Professor" />
+            )}
+            onChange={(_, value) => handleFilterSelect("instructor", value)}
+          />
+        </Grid>
 
-            <Grid item xs={12} md={3}>
-              <Button
-                variant="contained"
-                size="large"
-                style={{ height: 50 }}
-                onClick={handleOpenFilterModal}
-              >
-                Advanced Filter
-              </Button>
-            </Grid>
+        <Grid item xs={12} md={3}>
+          <Button
+            variant="contained"
+            size="large"
+            style={{ height: 50 }}
+            onClick={handleOpenFilterModal}
+          >
+            Advanced Filter
+          </Button>
+        </Grid>
+      </Grid>
+      <Accordion sx={{ boxShadow: "none", mt: 2 }}>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+          sx={{ width: "180px" }}
+        >
+          <Typography fontWeight={600}>Sync Courses</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 3 }}>
+          <Grid spacing={2}>
+            <TextField
+              onChange={handleSetURL}
+              fullWidth
+              variant="outlined"
+              label="URL"
+              value={url}
+              placeholder="https://www.csus.edu/class-schedule/fall-2024/MATH"
+              helperText="The URL of the CSUS page to scrape course data from"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSyncData}
+                    >
+                      Sync Data
+                    </Button>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {/* </Grid> */}
           </Grid>
-          <Accordion sx={{ boxShadow: "none", mt: 2 }}>
-            <AccordionSummary
-              expandIcon={<ExpandMore />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-              sx={{ width: "180px" }}
-            >
-              <Typography fontWeight={600}>Sync Courses</Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 3 }}>
-              <Grid spacing={2}>
-                <TextField
-                  onChange={handleSetURL}
-                  fullWidth
-                  variant="outlined"
-                  label="URL"
-                  value={url}
-                  placeholder="https://www.csus.edu/class-schedule/fall-2024/MATH"
-                  helperText="The URL of the CSUS page to scrape course data from"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={handleSyncData}
-                        >
-                          Sync Data
-                        </Button>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                {/* </Grid> */}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        </Card>
-        <Card sx={{ p: 1 }}>
-          {loading ? (
-            <Grid item xs={12} alignItems="center" textAlign="center">
-              <CircularProgress />
-            </Grid>
-          ) : filteredCourses?.length >= 1 ? (
-            <Grid container>
-              <FormControlLabel
-                value="end"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={filter.availableSeats}
-                    onChange={(v) =>
-                      handleFilterSelect("availableSeats", v.target.checked)
-                    }
-                  />
+        </AccordionDetails>
+      </Accordion>
+      {loading ? (
+        <Grid item xs={12} alignItems="center" textAlign="center">
+          <CircularProgress />
+        </Grid>
+      ) : filteredCourses?.length >= 1 ? (
+        <Grid container>
+          <FormControlLabel
+            value="end"
+            control={
+              <Switch
+                color="primary"
+                checked={filter.availableSeats}
+                onChange={(v) =>
+                  handleFilterSelect("availableSeats", v.target.checked)
                 }
-                label="Show available classes"
-                labelPlacement="start"
-                style={{ marginLeft: "auto" }}
               />
-              <TableContainer>
-                <Table>
-                  <TableBody>
-                    {filteredCourses
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((course, index) => (
-                        <React.Fragment key={course.id}>
-                          <TableRow style={{ height: "20px" }}>
-                            <TableCell
-                              colSpan={4}
-                              style={{ border: "none", padding: 0 }}
-                            ></TableCell>
-                          </TableRow>
-                          <TableRow
-                            style={{
-                              backgroundColor: "#333333",
-                            }}
-                          >
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Building
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Course Name
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Section
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Start Time
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              End Time
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Professor
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Days
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                                color: "#fff",
-                              }}
-                            >
-                              Seats (available)
-                            </TableCell>
-                          </TableRow>
-                          <TableRow
-                            key={course.course_code}
-                            style={{ backgroundColor: "#eae9e8" }}
-                          >
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.building}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.course_name}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.section}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.start_time
-                                ? parseTime(course.start_time)
-                                : "N/A"}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.end_time
-                                ? parseTime(course.end_time)
-                                : "N/A"}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.instructor}
-                            </TableCell>
-                            <TableCell
-                              style={{
-                                borderRight: "2px solid #E5E4E2",
-                              }}
-                            >
-                              {course.days}
-                            </TableCell>
-                            <TableCell>{course.seats}</TableCell>
-                          </TableRow>
-                        </React.Fragment>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Grid item xs={12}>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
-                  component="div"
-                  count={filteredCourses.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              </Grid>
-            </Grid>
-          ) : (
-            <Grid item xs={12} alignItems="center" textAlign="center">
-              <Typography variant="h4"> No Courses Found</Typography>
-            </Grid>
-          )}
-        </Card>
-      </Stack>
+            }
+            label="Show available classes"
+            labelPlacement="start"
+            style={{ marginLeft: "auto" }}
+          />
+          <TableContainer>
+            <Table>
+              <TableBody>
+                {filteredCourses
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((course, index) => (
+                    <React.Fragment key={course.id}>
+                      <TableRow style={{ height: "20px" }}>
+                        <TableCell
+                          colSpan={4}
+                          style={{ border: "none", padding: 0 }}
+                        ></TableCell>
+                      </TableRow>
+                      <TableRow
+                        style={{
+                          backgroundColor: "#333333",
+                        }}
+                      >
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Building
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Course Name
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Section
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Start Time
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          End Time
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Professor
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Days
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                            color: "#fff",
+                          }}
+                        >
+                          Seats (available)
+                        </TableCell>
+                      </TableRow>
+                      <TableRow
+                        key={course.course_code}
+                        style={{ backgroundColor: "#eae9e8" }}
+                      >
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.building}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.course_name}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.section}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.start_time
+                            ? parseTime(course.start_time)
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.end_time ? parseTime(course.end_time) : "N/A"}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.instructor}
+                        </TableCell>
+                        <TableCell
+                          style={{
+                            borderRight: "2px solid #E5E4E2",
+                          }}
+                        >
+                          {course.days}
+                        </TableCell>
+                        <TableCell>{course.seats}</TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Grid item xs={12}>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredCourses.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Grid>
+        </Grid>
+      ) : (
+        <Grid item xs={12} alignItems="center" textAlign="center">
+          <Typography variant="h4"> No Courses Found</Typography>
+        </Grid>
+      )}
 
       <FilterModal
         isOpened={isShowFilterModal}

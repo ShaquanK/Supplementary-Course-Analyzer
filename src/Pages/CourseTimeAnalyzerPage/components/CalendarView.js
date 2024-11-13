@@ -45,24 +45,31 @@ export const CalendarView = ({ data }) => {
 
   return (
     <Box marginTop={1} marginBottom={5}>
-      <Card style={{ padding: 10 }}>
-        <Grid container gap={1} justifyContent="space-between">
-          <Grid item xs={1}></Grid>
+      <Card style={{ border: "1px solid #d1d5db" }}>
+        <Grid container justifyContent="space-between">
+          <Grid item xs={1} borderBottom={1} borderColor="#d1d5db"></Grid>
 
           {COLUMNS.map((column) => (
-            <Grid key={column} item xs={1.3}>
+            <Grid
+              key={column}
+              item
+              xs={1.571}
+              borderBottom={1}
+              borderLeft={1}
+              borderColor="#d1d5db"
+            >
               <Box
-                bgcolor="#333333"
                 textAlign="center"
                 padding={2}
                 fontSize={14}
                 fontWeight="bold"
-                color="white"
+                color="#333333"
               >
                 {column}
               </Box>
             </Grid>
           ))}
+
           {new Array(24).fill("").map((_, hour) => {
             return (
               <Grid
@@ -70,9 +77,16 @@ export const CalendarView = ({ data }) => {
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Grid xs={1} item textAlign="center" height="100%" border={1}>
+                <Grid
+                  xs={1.011}
+                  item
+                  textAlign="center"
+                  height="100%"
+                  borderRight={1}
+                  borderBottom={hour < 23 ? 1 : 0}
+                  borderColor="#d1d5db"
+                >
                   <Box
-                    bgcolor="#e0e0e0"
                     fontWeight="bold"
                     height="100%"
                     display="flex"
@@ -82,16 +96,20 @@ export const CalendarView = ({ data }) => {
                     {hour}:00
                   </Box>
                 </Grid>
-                {COLUMNS.map((day) => {
+                {COLUMNS.map((day, idx) => {
+                  console.log("idx", idx);
+
                   const matchedCourses = getMatchedCourse(day, hour);
 
                   return (
                     <Grid
-                      xs={1.3}
+                      xs={1.562}
                       item
                       textAlign="center"
-                      border={1}
                       height="100%"
+                      borderRight={idx < 6 ? 1 : 0}
+                      borderBottom={hour < 23 ? 1 : 0}
+                      borderColor="#d1d5db"
                     >
                       <Box
                         sx={{
@@ -99,16 +117,20 @@ export const CalendarView = ({ data }) => {
                           flexWrap: "wrap",
                           gap: 0.2,
                         }}
-                        padding={2}
+                        padding={1}
                       >
-                        {matchedCourses?.length
-                          ? matchedCourses?.map((course, idx) => (
-                              <Box sx={{ fontWeight: 600 }} height="100%">
-                                {course?.course_code +
-                                  (idx < matchedCourses.length - 1 ? "," : "")}
-                              </Box>
-                            ))
-                          : "-"}
+                        {matchedCourses?.length ? (
+                          <Box
+                            sx={{
+                              fontWeight: 600,
+                              backgroundColor: "rgba(34, 197, 94, 0.8)",
+                            }}
+                            minHeight={30}
+                            minWidth="100%"
+                          />
+                        ) : (
+                          <Box minHeight={30}>-</Box>
+                        )}
                       </Box>
                     </Grid>
                   );

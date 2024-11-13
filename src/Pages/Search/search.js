@@ -32,6 +32,7 @@ import { collectionAPI } from "../../routes/collection/collection";
 import { parseTime } from "../../utils/parse-time";
 import { ExpandMore } from "@mui/icons-material";
 import axios from "axios";
+import { FilterModal } from "./components/FilterModal";
 
 const useGetCourses = (params) => {
   const [courses, setCourses] = useState([]);
@@ -65,7 +66,11 @@ export const Search = () => {
     time: "",
     days: "",
     availableSeats: false,
+    section: "",
+    startTime: "",
+    endTime: "",
   });
+  const [isShowFilterModal, setIsShowFilterModal] = useState(false);
 
   const headers =
     "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
@@ -82,7 +87,7 @@ export const Search = () => {
       );
       setData(result.data);
 
-      await collectionAPI.syncDataToFirebase(result?.data,"Fall", "2024-25");
+      await collectionAPI.syncDataToFirebase(result?.data, "Fall", "2024-25");
 
       const retrievedCourses = await collectionAPI.getCollection("courses");
 
@@ -119,7 +124,16 @@ export const Search = () => {
         : true;
       const timeMatch = course.time ? course.time.includes(filter.time) : true;
       const daysMatch =
-        filter.days?.length >= 1 ? course.days == filter.days : true;
+        filter.days?.length >= 1 ? course.days === filter.days : true;
+      const startTimeMatch = filter.startTime
+        ? course.start_time.includes(filter.startTime)
+        : true;
+      const endTimeMatch = filter.endTime
+        ? course.end_time.includes(filter.endTime)
+        : true;
+      const sectionMatch = filter.section
+        ? course.section.includes(filter.section)
+        : true;
 
       setTimeout(() => {
         setLoading(false);
@@ -130,19 +144,15 @@ export const Search = () => {
         professorMatch &&
         timeMatch &&
         daysMatch &&
-        availableMatch
+        availableMatch &&
+        startTimeMatch &&
+        endTimeMatch &&
+        sectionMatch
       );
     });
 
     setFilteredCourses(filtered);
-  }, [
-    allCourses,
-    filter.availableSeats,
-    filter.days,
-    filter.instructor,
-    filter.time,
-    query,
-  ]);
+  }, [allCourses, filter, query]);
 
   useEffect(() => {
     setLoading(true);
@@ -183,6 +193,12 @@ export const Search = () => {
   };
 
   const handleSetURL = (e) => setURL(e.target.value);
+
+  const handleOpenFilterModal = () => setIsShowFilterModal(true);
+
+  const handleCloseFilterModal = () => setIsShowFilterModal(false);
+
+  const handleAdvFilter = (advFilter) => setFilter({ ...filter, ...advFilter });
 
   return (
     <DefaultLayout>
@@ -228,6 +244,17 @@ export const Search = () => {
                 )}
                 onChange={(_, value) => handleFilterSelect("instructor", value)}
               />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <Button
+                variant="contained"
+                size="large"
+                style={{ height: 50 }}
+                onClick={handleOpenFilterModal}
+              >
+                Advanced Filter
+              </Button>
             </Grid>
           </Grid>
           <Accordion sx={{ boxShadow: "none", mt: 2 }}>
@@ -459,6 +486,14 @@ export const Search = () => {
           )}
         </Card>
       </Stack>
+
+      <FilterModal
+        isOpened={isShowFilterModal}
+        courses={allCourses}
+        onClose={handleCloseFilterModal}
+        onFilter={handleAdvFilter}
+        defaultValues={filter}
+      />
     </DefaultLayout>
   );
 };

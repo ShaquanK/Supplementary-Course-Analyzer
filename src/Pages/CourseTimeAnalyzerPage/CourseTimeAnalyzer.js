@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
-  Button,
+  Box,
   Card,
+  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
   Stack,
+  Switch,
   TablePagination,
   TextField,
 } from "@mui/material";
@@ -15,6 +17,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { courses } from "../../courses";
+import { CalendarView } from "./components/CalendarView";
 
 const CourseTimeAnalyzer = () => {
   const [timeSlots, setTimeSlots] = useState([]);
@@ -24,6 +27,7 @@ const CourseTimeAnalyzer = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [editingRow, setEditingRow] = useState(null); // New state for tracking which row is being edited
   const [editedSlot, setEditedSlot] = useState({}); // New state for storing edited slot
+  const [isCalendarView, setIsCalendarView] = useState(false);
 
   const handleSearch = () => {
     const filtered = timeSlots.filter(
@@ -84,6 +88,31 @@ const CourseTimeAnalyzer = () => {
     setEditedSlot((prev) => ({ ...prev, [field]: value }));
   };
 
+  console.log("Courses", courses);
+
+  if (isCalendarView) {
+    return (
+      <DefaultLayout>
+        <Box sx={{ textAlign: "right", mt: 5 }}>
+          <FormControlLabel
+            value="end"
+            control={
+              <Switch
+                color="primary"
+                checked={isCalendarView}
+                onChange={(v) => setIsCalendarView(v.target.checked)}
+              />
+            }
+            label="Calendar View"
+            labelPlacement="start"
+            style={{ marginLeft: "auto" }}
+          />
+        </Box>
+        <CalendarView data={courses} />
+      </DefaultLayout>
+    );
+  }
+
   return (
     <DefaultLayout>
       <Stack p={3} spacing={2}>
@@ -127,6 +156,20 @@ const CourseTimeAnalyzer = () => {
         </Card>
         <Card sx={{ p: 1 }}>
           <Grid container>
+            <FormControlLabel
+              value="end"
+              control={
+                <Switch
+                  color="primary"
+                  checked={isCalendarView}
+                  onChange={(v) => setIsCalendarView(v.target.checked)}
+                />
+              }
+              label="Calendar View"
+              labelPlacement="start"
+              style={{ marginLeft: "auto" }}
+            />
+
             <Table>
               <TableBody>
                 {filteredTimeSlots

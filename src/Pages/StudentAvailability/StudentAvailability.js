@@ -133,7 +133,7 @@ function StudentAvailability() {
     } catch (error) {
       console.error('Error deleting student:', error);
     }
-  };
+  };  
 
   const handleEditStudent = (student) => {
     setEditingStudentId(student.id);
@@ -186,6 +186,11 @@ function StudentAvailability() {
     }
   };
 
+  const handleDeleteTimeSlot = (index) => {
+    const updatedTimeSlots = timeSlots.filter((_, idx) => idx !== index);
+    setTimeSlots(updatedTimeSlots);
+  };
+  
   const handleSubmit = async () => {
     if (!selectedCourse) return;
 
@@ -218,13 +223,21 @@ function StudentAvailability() {
 
     // Clear any existing error messages
     setErrorMessage([]);
-
     const availability = {
       studentName,
       days: selectedDays,
       timeSlots,
       courseId: selectedCourse,
     };
+
+    // Local Duplicate Check
+    const existingStudent = availabilityData.find(
+      student => student.studentName.trim().toLowerCase() === studentName.trim().toLowerCase()
+    );
+    if (existingStudent) {
+      setErrorMessage(["A student with this name already exists in the selected course."]);
+      return;
+    }
 
     try {
       await addDoc(collection(db, 'studentAvailability'), availability);
@@ -282,13 +295,18 @@ function StudentAvailability() {
               {courses.map(course => (
                 <MenuItem key={course.id} value={course.id}>
                   {course.name}
-                  <IconButton
-                    onClick={() => handleDeleteCourse(course.id)}
-                    color="secondary"
-                    style={{ marginLeft: '8px' }}
-                  >
-                    <Delete />
-                  </IconButton>
+                  {!selectedCourse && (
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the menu from closing
+                        handleDeleteCourse(course.id);
+                      }}
+                      color="secondary"
+                      style={{ marginLeft: '8px' }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  )}
                 </MenuItem>
               ))}
             </Select>
@@ -398,7 +416,15 @@ function StudentAvailability() {
                     inputProps={{ step: 300 }}
                     variant="outlined"
                     margin="normal"
+                    style={{ marginRight: 16 }}
                   />
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleDeleteTimeSlot(index)}
+                    style={{ marginLeft: 8 }}
+                  >
+                    <Delete />
+                  </IconButton>
                 </Box>
               ))}
               <Button onClick={addTimeSlot} variant="outlined" color="primary">

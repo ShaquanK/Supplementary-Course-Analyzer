@@ -24,13 +24,29 @@ Peer Assisted Learning (PAL) offers 1-unit courses available for students enroll
 ## Technology
 
 -Tech Stack: React, Node.js, MaterialsUI, Firebase,\
--Status: Developmental stages
+-Status: Completed Project
 
 ## Testing
+
+-Install Python going to their official site [here](https://www.python.org/downloads/) and make sure to check the option "Add Python to Path" to make Python accessible.   \
+-Ensure python is installed by checking in command prompt on your machine using the command python -V. Ensure python package installer pip is installed by running in command prompt pip -v. These will check that python and its package installer are finable on your machine and up to date.\
+-In VS Code terminal run pip install selenium to download selenium packages\
+-Open up the project and go to the tests folder within the project tree. Select a test and run.
 
 ## Deployment
 
 ## Developer Instructions
+This guide is meant for a windows machine but with a few tweaks, this can be run on a Linux or Mac Machine.
+\
+
+
+Download VS Code from the official site [here](https://code.visualstudio.com/) 
+
+Access the github repository branch [here](https://github.com/Jdcruz831/Supplementary-Course-Analyzer).
+
+From the main VS Code window, click clone github repository. Enter in the URL from the github repository branch hyperlink into the search bar on top and clone the repository to the desired location on your machine. Open up the project in VS Code.
+
+ In the terminal, type and enter npm install, npm install firebase, and then npm run to run the project as a localhost. From there we can work on the project. 
 
 ## Prototyping Images
 ERD Diagram 
@@ -45,26 +61,39 @@ Prototype Login Page
 
 ![Proto_Login_Page](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/Proto_Login_Page.png)
 
-## Current Examples
+## Final Pages
 Home Page
-![home_page](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/home_page.JPG)
+![home_page](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/final_home.png)
 
 Login Page
-![login](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/login.PNG)
+![login](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/Final_Login_Page.png)
 
 Registration Page
-![register](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/register.PNG)
+![register](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/final_registration.png)
 
-## Contributors
+Manage Users Page
+![manage_users](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/manage_users.png)
+
+Creators Page
+![creators](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/creators.png)
+
+
+## Contributors & Contact
 
 Shajaat Ali\
+shajaatali@csus.edu\
 Raj Pannu\
+rajdeeppannu@csus.edu\
 Shaquan Carolina\
+scarolina@csus.edu\
 Chi Andrus\
+chidoandrus@csus.edu\
 Kyle Diep\
+kylediep@csus.edu\
 JD Cruz\
+Jacob.cruz.9353@gmail.com \
 David Chatla\
-Ian Charamuga
+davidchatla@csus.edu
 
 ## Installation
 
@@ -73,4 +102,4 @@ npm start
 
 ## Timeline
 
-![jiratimeline](https://github.com/Jdcruz831/Supplementary-Course-Analyzer/blob/main/src/img/jiratimeline.png)
+![jiratimeline](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/final_timeline.png)

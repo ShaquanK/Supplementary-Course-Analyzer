@@ -93,7 +93,7 @@ kylediep@csus.edu\
 JD Cruz\
 Jacob.cruz.9353@gmail.com \
 David Chatla\
-davidchatla@csus.edu\
+davidchatla@csus.edu
 
 ## Installation
 

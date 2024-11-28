@@ -1,13 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  Card,
   Grid,
-  Stack,
   TableContainer,
   TablePagination,
   TextField,
-  Autocomplete,
   Table,
   TableBody,
   TableCell,
@@ -24,9 +21,7 @@ import {
 } from "@mui/material";
 import uniq from "lodash/uniq";
 import CircularProgress from "@mui/material/CircularProgress";
-
 import SearchIcon from "@mui/icons-material/Search";
-
 import DefaultLayout from "../../components/default/layout";
 import { collectionAPI } from "../../routes/collection/collection";
 import { parseTime } from "../../utils/parse-time";
@@ -34,48 +29,60 @@ import { ExpandMore } from "@mui/icons-material";
 import axios from "axios";
 import { FilterModal } from "./components/FilterModal";
 
-const useGetCourses = (params) => {
-  const [courses, setCourses] = useState([]);
-
-  const handleGetCourses = useCallback(async () => {
-    const retrievedCourses = await collectionAPI.getCollection("courses");
-
-    setCourses(retrievedCourses);
-  }, []);
-
-  useEffect(() => {
-    handleGetCourses();
-  }, []);
-
-  return courses;
-};
-
 export const Search = () => {
-  const allCourses = useGetCourses();
-  const [filteredCourses, setFilteredCourses] = useState(allCourses);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [section, setSection] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [lastVisible, setLastVisible] = useState(null);
+  const [showAvail, setShowAvail] = useState(false);
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [isShowFilterModal, setIsShowFilterModal] = useState(false);
   const [url, setURL] = useState(
     "https://www.csus.edu/class-schedule/fall-2024/MATH"
   );
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [filter, setFilter] = useState({
-    instructor: "",
-    time: "",
-    days: "",
-    availableSeats: false,
-    section: "",
-    startTime: "",
-    endTime: "",
-  });
-  const [isShowFilterModal, setIsShowFilterModal] = useState(false);
-
   const headers =
     "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
 
-  const [data, setData] = useState([]);
+  const handleGetCourses = useCallback(async () => {
+    setLoading(true);
+
+    const params = {
+      query: query,
+      section: section,
+      startTime: startTime,
+      endTime: endTime,
+      showAvail: showAvail,
+    };
+
+    await collectionAPI
+      .getCollection("courses", rowsPerPage, lastVisible, params)
+      .then((response) => {
+        setCourses(response?.docsArray ?? []);
+        setLastVisible(response?.lastVisible ?? null);
+        setLoading(false);
+      });
+  }, [
+    rowsPerPage,
+    lastVisible,
+    courses,
+    query,
+    startTime,
+    endTime,
+    section,
+    showAvail,
+  ]);
+
+  useEffect(() => {
+    setCourses([]);
+    setLoading(true);
+    handleGetCourses();
+  }, [page, rowsPerPage, showAvail]);
 
   const handleSyncData = async () => {
     setLoading(true);
@@ -91,7 +98,7 @@ export const Search = () => {
 
       const retrievedCourses = await collectionAPI.getCollection("courses");
 
-      setFilteredCourses(retrievedCourses);
+      setCourses(retrievedCourses);
     } catch (error) {
       console.error("Error fetching data:", error);
       setData([]);
@@ -100,96 +107,14 @@ export const Search = () => {
     }
   };
 
-  useEffect(() => {
-    setLoading(true);
-    setFilteredCourses(allCourses);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, [allCourses]);
-
-  const handleFilterCourses = useCallback(() => {
-    const filtered = allCourses.filter((course) => {
-      const availableMatch = filter.availableSeats
-        ? parseInt(course.seats) > 0
-        : parseInt(course.seats) === 0;
-
-      const keywordMatch = course.course_name
-        .toLowerCase()
-        .includes(query.toLowerCase());
-      const professorMatch = filter?.instructor
-        ? course.instructor
-            .toLowerCase()
-            .includes(filter.instructor.toLowerCase())
-        : true;
-      const timeMatch = course.time ? course.time.includes(filter.time) : true;
-      const daysMatch =
-        filter.days?.length >= 1 ? course.days === filter.days : true;
-      const startTimeMatch = filter.startTime
-        ? course.start_time.includes(filter.startTime)
-        : true;
-      const endTimeMatch = filter.endTime
-        ? course.end_time.includes(filter.endTime)
-        : true;
-      const sectionMatch = filter.section
-        ? course.section.includes(filter.section)
-        : true;
-
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-
-      return (
-        keywordMatch &&
-        professorMatch &&
-        timeMatch &&
-        daysMatch &&
-        availableMatch &&
-        startTimeMatch &&
-        endTimeMatch &&
-        sectionMatch
-      );
-    });
-
-    setFilteredCourses(filtered);
-  }, [allCourses, filter, query]);
-
-  useEffect(() => {
-    setLoading(true);
-    handleFilterCourses();
-  }, [filter, handleFilterCourses]);
-
-  const professorOptions = useMemo(() => {
-    const professors = allCourses.map((course) => course.instructor);
-
-    return uniq(professors);
-  }, [allCourses]);
-
-  const dayOptions = useMemo(() => {
-    const days = allCourses.map((course) => course.days);
-
-    return uniq(days).sort();
-  }, [allCourses]);
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
+    const newRowsPerPage = +event.target.value;
+    setRowsPerPage(newRowsPerPage);
     setPage(0);
-  };
-
-  const handleFilterSelect = (key, value) => {
-    setPage(0);
-    setFilter({
-      ...filter,
-      [key]: value,
-    });
-  };
-
-  const handleSearchWord = (e) => {
-    setQuery(e.target.value);
   };
 
   const handleSetURL = (e) => setURL(e.target.value);
@@ -198,52 +123,45 @@ export const Search = () => {
 
   const handleCloseFilterModal = () => setIsShowFilterModal(false);
 
-  const handleAdvFilter = (advFilter) => setFilter({ ...filter, ...advFilter });
+  const handleSetSection = (val) => {
+    setSection(val);
+  };
+  const handleSetStartTime = (val) => {
+    setStartTime(val);
+  };
+  const handleSetEndTime = (val) => {
+    setEndTime(val);
+  };
+
+  const handleCallFilter = () => {
+    handleGetCourses();
+  };
 
   return (
     <DefaultLayout title="Search Courses">
       <Grid container spacing={2}>
         <Grid item xs={12} md={3}>
           <TextField
-            onChange={handleSearchWord}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                setLoading(true);
-                handleFilterCourses(); // Trigger the filter action on Enter key press
+                handleGetCourses();
               }
             }}
             fullWidth
             variant="outlined"
             label="Search By Name"
+            helperText="Must be an exact match ('anth 1', 'bio 1', etc)"
             InputProps={{
               endAdornment: (
-                <IconButton onClick={handleFilterCourses} position="end">
+                <IconButton onClick={() => handleGetCourses()} position="end">
                   <SearchIcon />
                 </IconButton>
               ),
             }}
           />
         </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Autocomplete
-            options={dayOptions}
-            renderInput={(params) => <TextField {...params} label="Day" />}
-            onChange={(_, value) => handleFilterSelect("days", value)}
-            plac
-          />
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Autocomplete
-            options={professorOptions}
-            renderInput={(params) => (
-              <TextField {...params} label="Professor" />
-            )}
-            onChange={(_, value) => handleFilterSelect("instructor", value)}
-          />
-        </Grid>
-
         <Grid item xs={12} md={3}>
           <Button
             variant="contained"
@@ -253,6 +171,21 @@ export const Search = () => {
           >
             Advanced Filter
           </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <FormControlLabel
+            value="end"
+            control={
+              <Switch
+                color="primary"
+                checked={showAvail}
+                onChange={(v) => setShowAvail(v.target.checked)}
+              />
+            }
+            label="Show available classes"
+            labelPlacement="start"
+            style={{ marginLeft: "auto" }}
+          />
         </Grid>
       </Grid>
       <Accordion sx={{ boxShadow: "none", mt: 2 }}>
@@ -288,7 +221,6 @@ export const Search = () => {
                 ),
               }}
             />
-            {/* </Grid> */}
           </Grid>
         </AccordionDetails>
       </Accordion>
@@ -296,28 +228,13 @@ export const Search = () => {
         <Grid item xs={12} alignItems="center" textAlign="center">
           <CircularProgress />
         </Grid>
-      ) : filteredCourses?.length >= 1 ? (
+      ) : courses?.length >= 1 ? (
         <Grid container>
-          <FormControlLabel
-            value="end"
-            control={
-              <Switch
-                color="primary"
-                checked={filter.availableSeats}
-                onChange={(v) =>
-                  handleFilterSelect("availableSeats", v.target.checked)
-                }
-              />
-            }
-            label="Show available classes"
-            labelPlacement="start"
-            style={{ marginLeft: "auto" }}
-          />
           <TableContainer>
             <Table>
               <TableBody>
-                {filteredCourses
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                {courses
+                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((course, index) => (
                     <React.Fragment key={course.id}>
                       <TableRow style={{ height: "20px" }}>
@@ -458,11 +375,12 @@ export const Search = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
           <Grid item xs={12}>
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
+              rowsPerPageOptions={[15, 30, 60]}
               component="div"
-              count={filteredCourses.length}
+              count={-1}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
@@ -475,13 +393,14 @@ export const Search = () => {
           <Typography variant="h4"> No Courses Found</Typography>
         </Grid>
       )}
-
       <FilterModal
         isOpened={isShowFilterModal}
-        courses={allCourses}
+        courses={courses}
         onClose={handleCloseFilterModal}
-        onFilter={handleAdvFilter}
-        defaultValues={filter}
+        onFilter={handleCallFilter}
+        onSetSection={handleSetSection}
+        onSetStartTime={handleSetStartTime}
+        onSetEndTime={handleSetEndTime}
       />
     </DefaultLayout>
   );

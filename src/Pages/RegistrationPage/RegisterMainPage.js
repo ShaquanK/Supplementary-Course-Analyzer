@@ -86,6 +86,7 @@ const Register = () => {
             <div className="input">
               <img src={user_icon} alt="" />
               <input
+                id="display_name"
                 type="text"
                 placeholder="User Name"
                 name="user_name"
@@ -97,6 +98,7 @@ const Register = () => {
           <div className="input">
             <img src={email_icon} alt="" />
             <input
+              id="email_field"
               type="email"
               placeholder="Email"
               name="user_email"
@@ -106,6 +108,7 @@ const Register = () => {
           <div className="input">
             <img src={password_icon} alt="" />
             <input
+              id="password_field"
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
@@ -114,6 +117,7 @@ const Register = () => {
           <div className="input">
             <img src={password_icon} alt="" />
             <input
+              id="password_confirm"
               type="password"
               placeholder="Re-Enter Password"
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -124,7 +128,7 @@ const Register = () => {
           )}
         </div>
         <div className="submit-container">
-          <div className="submit" onClick={handleSignUp}>
+          <div id="signup_button" className="submit" onClick={handleSignUp}>
             Sign Up
           </div>
         </div>

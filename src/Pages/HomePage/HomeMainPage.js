@@ -57,7 +57,7 @@ function HomeMainPage() {
 
     const timer = setTimeout(() => {
       setNotifications([]);
-    }, 10000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [location.state]);

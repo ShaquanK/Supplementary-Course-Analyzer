@@ -133,6 +133,7 @@ function ManageUser() {
         >
           <Stack spacing={3}>
             <Typography
+              id="manage_password"
               variant="body1"
               sx={{
                 color: "white",
@@ -144,6 +145,7 @@ function ManageUser() {
               Manage Password
             </Typography>
             <Typography
+              id="manage_email"
               variant="body1"
               sx={{
                 color: "white",
@@ -165,6 +167,7 @@ function ManageUser() {
         <DialogContent>
           {/* Current Email */}
           <TextField
+            id="current_email"
             label="Current Email"
             type="email"
             fullWidth
@@ -174,6 +177,7 @@ function ManageUser() {
           />
           {/* Old Password */}
           <TextField
+            id="old_password"
             label="Old Password"
             type={showOldPassword ? "text" : "password"}
             fullWidth
@@ -195,6 +199,7 @@ function ManageUser() {
           />
           {/* New Password */}
           <TextField
+            id="new_password"
             label="New Password"
             type={showNewPassword ? "text" : "password"}
             fullWidth
@@ -217,7 +222,7 @@ function ManageUser() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenPasswordDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdatePassword}>Update Password</Button>
+          <Button id="update_password" onClick={handleUpdatePassword}>Update Password</Button>
         </DialogActions>
       </Dialog>
 
@@ -226,6 +231,7 @@ function ManageUser() {
         <DialogTitle>Update Email</DialogTitle>
         <DialogContent>
           <TextField
+            id="current_email"
             label="Current Email"
             type="email"
             fullWidth
@@ -234,6 +240,7 @@ function ManageUser() {
             onChange={(e) => setCurrentEmail(e.target.value)} // New input field for current email
           />
           <TextField
+            id="old_password"
             label="Old Password"
             type="password"
             fullWidth
@@ -242,6 +249,7 @@ function ManageUser() {
             onChange={(e) => setOldPassword(e.target.value)}
           />
           <TextField
+            id="new_email"
             label="New Email"
             type="email"
             fullWidth
@@ -252,7 +260,7 @@ function ManageUser() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEmailDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateEmail}>Update Email</Button>
+          <Button id="update_email" onClick={handleUpdateEmail}>Update Email</Button>
         </DialogActions>
       </Dialog>
 

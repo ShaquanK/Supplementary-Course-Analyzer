@@ -1,4 +1,5 @@
-# Istall webdriver-manager python package
+# pip install selenium
+# pip install webdriver-manager
 
 import time
 from selenium import webdriver

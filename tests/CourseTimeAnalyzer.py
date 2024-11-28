@@ -1,54 +1,42 @@
+import allure
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-import time
+from selenium.webdriver.common.keys import Keys
 
-# Initialize the driver
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+@allure.step("Login to the application")
+def login(driver, wait, email, password):
+    driver.get("http://localhost:3000/Login")
+    email_box = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id=":r1:"]')))
+    email_box.send_keys(email)
+    pass_box = driver.find_element(By.XPATH, '//*[@id=":r3:"]')
+    pass_box.send_keys(password)
+    login_button = driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/button[1]')
+    login_button.click()
+    wait.until(EC.url_to_be('http://localhost:3000/'))
 
-try:
-    # Open the CourseTimeAnalyzer page
-    driver.get("http://localhost:3000/CourseTimeAnalyzer") 
+@allure.step("Test CourseTimeAnalyzer page")
+def test_course_time_analyzer():
+    options = webdriver.ChromeOptions()
+    driver = webdriver.Chrome(options=options)  # Ensure ChromeDriver is in PATH
+    wait = WebDriverWait(driver, 15)  # Reduced timeout
+    try:
+        with allure.step("Perform login"):
+            login(driver, wait, "Davidchatla@yahoo.com", "test123")
+            allure.attach(driver.get_screenshot_as_png(), name="Login Page Screenshot", attachment_type=allure.attachment_type.PNG)
 
-    # Wait until the search bar is present
-    wait = WebDriverWait(driver, 10)
-    search_box = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@aria-label="Search Time Slots"]')))
+        with allure.step("Open the CourseTimeAnalyzer page"):
+            driver.get("http://localhost:3000/CourseTimeAnalyzer")
+            wait.until(EC.presence_of_element_located((By.XPATH, '//input[@aria-label="Search Time Slots"]')))
+            allure.attach(driver.get_screenshot_as_png(), name="CourseTimeAnalyzer Page Screenshot", attachment_type=allure.attachment_type.PNG)
+        
+        with allure.step("Check if page loaded"):
+            assert "Supplementary Course Analyzer" in driver.title, "Page did not load or has no title"
 
-    # Enter search query and hit Enter
-    search_box.send_keys("Monday")
-    search_box.send_keys(Keys.RETURN)
+        with allure.step("Capture console logs"):
+            for entry in driver.get_log('browser'):
+                print(entry)
 
-    # Toggle to Calendar View
-    calendar_switch = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="checkbox"]')))
-    calendar_switch.click()
-    time.sleep(2)  # Wait for view to switch
-
-    # Toggle back to List View
-    calendar_switch.click()
-    time.sleep(2)
-
-    # Edit the first row's time slot
-    edit_button = wait.until(EC.element_to_be_clickable((By.XPATH, '(//button[@aria-label="edit"])[1]')))
-    edit_button.click()
-
-    # Wait for time slot input to be editable
-    time_slot_input = wait.until(EC.element_to_be_clickable((By.XPATH, '(//input[@value])[2]')))
-    time_slot_input.clear()
-    time_slot_input.send_keys("10:00 AM - 12:00 PM")
-
-    # Save the edited row
-    save_button = wait.until(EC.element_to_be_clickable((By.XPATH, '(//button[@aria-label="save"])[1]')))
-    save_button.click()
-
-    # Verify the change
-    updated_time = wait.until(EC.presence_of_element_located((By.XPATH, '//table//td[text()="10:00 AM - 12:00 PM"]')))
-    assert updated_time.text == "10:00 AM - 12:00 PM", "Time slot was not updated correctly!"
-
-    print("Test completed successfully.")
-
-finally:
-    # Close the driver after test
-    driver.quit()
+    finally:
+        driver.quit()

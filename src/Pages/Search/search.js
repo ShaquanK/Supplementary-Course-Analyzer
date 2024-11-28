@@ -253,7 +253,7 @@ export const Search = () => {
             style={{ height: 50 }}
             onClick={handleOpenFilterModal}
           >
-            Advanced Filter
+            Advanced Search
           </Button>
         </Grid>
       </Grid>

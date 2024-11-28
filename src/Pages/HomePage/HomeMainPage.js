@@ -133,7 +133,7 @@ function HomeMainPage() {
             >
               Student Enrollment Analyzer
             </Button>
-            <Button component="a" href="/CourseTimeAnalyzer" sx={buttonStyle}>
+            <Button id="course_analyzer" component="a" href="/CourseTimeAnalyzer" sx={buttonStyle}>
               Course Time Analyzer
             </Button>
             <Button component="a" href="/StudentAvailability" sx={buttonStyle}>

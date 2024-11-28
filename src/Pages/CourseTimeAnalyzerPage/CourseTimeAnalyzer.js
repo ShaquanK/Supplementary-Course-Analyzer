@@ -114,6 +114,7 @@ const CourseTimeAnalyzer = () => {
   return (
     <DefaultLayout>
       <TextField
+        id="time_search"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         sx={{

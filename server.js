@@ -53,8 +53,9 @@ async function scrape(url, columnHeadersString) {
         // Get the title from the h2 element in the section
         const titleElement = await tableDiv.$("h2");
         const idProperty = await titleElement.getProperty("id");
-        const id = (await idProperty.jsonValue()).replace("-", " ");
-        console.log("Element ID:", id);
+const id = (await idProperty.jsonValue()).replace(/-/g, " ").toLowerCase().trim();
+console.log("Element ID:", id);
+
 
         const title = await (
           await titleElement.getProperty("innerText")
@@ -107,7 +108,7 @@ async function scrape(url, columnHeadersString) {
 app.get("/scrape", async (req, res) => {
   // Get the full URL from the request query
   const fullUrl =
-    req.query.url || "https://www.csus.edu/class-schedule/fall-2024/MATH";
+    req.query.url || "https://www.csus.edu/class-schedule/fall-2024";
 
   // Check if there are headers in the URL
   const headersParamIndex = fullUrl.indexOf("headers=");

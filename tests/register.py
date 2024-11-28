@@ -14,25 +14,29 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
 try:
     #Navigate to login page
-    driver.get('http://localhost:3000/#/Login')
+    driver.get('http://localhost:3000/Login')
+    time.sleep(2)
     
     #wait until the create account button is loaded
     create_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/button[2]'))
+        EC.element_to_be_clickable((By.ID, 'register_button'))
     )
     create_button.click()
     
-    email_box = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.NAME, 'user_email'))
+    displayname = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, 'display_name'))
     )
+    displayname.send_keys("test123456@email.com")
+    
+    email_box = driver.find_element(By.ID, 'email_field')
     email_box.send_keys("test123456@email.com")
     
-    password_box = driver.find_element(By.NAME, 'user_password')
+    password_box = driver.find_element(By.ID, 'password_field')
     password_box.send_keys("Test1234!")
-    confirm_box = driver.find_element(By.NAME, 'confirm_password')
+    confirm_box = driver.find_element(By.ID, 'password_confirm')
     confirm_box.send_keys("Test1234!")
     
-    signup_button = driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div/form/div[2]/button').click()
+    signup_button = driver.find_element(By.ID, 'signup_button').click()
     
     try: 
         WebDriverWait(driver, 5).until(EC.url_contains('ogin'))
@@ -40,7 +44,7 @@ try:
         time.sleep(4)
     except:
         error_msg = WebDriverWait(driver, 5).until(
-        EC.visibility_of_element_located((By.XPATH, '//*[@id="root"]/div/div/div/form/div[2]/div/div[2]'))
+        EC.visibility_of_element_located((By.ID, 'error_message'))
         )
         print(f"Error: {error_msg.text}")
         time.sleep(3)

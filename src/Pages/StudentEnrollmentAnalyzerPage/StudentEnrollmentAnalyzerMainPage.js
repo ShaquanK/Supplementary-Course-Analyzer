@@ -1,222 +1,494 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
+  Card,
+  Grid,
+  Stack,
+  TableContainer,
+  TablePagination,
+  TextField,
+  Autocomplete,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
   TableRow,
+  Button,
+  Accordion,
   Paper,
-  Stack,
-  Card,
-  Box,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
-  TablePagination,
+  InputAdornment,
+  IconButton,
+  Box,
+  MenuItem,
+  Select,
 } from "@mui/material";
+import uniq from "lodash/uniq";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import SearchIcon from "@mui/icons-material/Search";
+import {useMath29TimeSlotCounts} from "./components/Analyzers/Math29";
+import {useMath12TimeSlotCounts} from "./components/Analyzers/Math12";
+import {useMath30TimeSlotCounts} from "./components/Analyzers/Math30";
+import {useMath31TimeSlotCounts} from "./components/Analyzers/Math31";
+import {useMath32TimeSlotCounts} from "./components/Analyzers/Math32";
+import {useBio25TimeSlotCounts} from "./components/Analyzers/Bio25";
+import {useBio26TimeSlotCounts} from "./components/Analyzers/Bio26";
+import {useBio131TimeSlotCounts} from "./components/Analyzers/Bio131";
+import {useChem4TimeSlotCounts} from "./components/Analyzers/Chem4";
+
+
+
+
+
+
 import DefaultLayout from "../../components/default/layout";
-import { courses } from "../../courses";
+import { collectionAPI } from "../../routes/collection/collection";
 
-// Creates fake student data for testing
-function generateStudentEnrollments(numStudents, courses) {
-  const students = [];
-  for (let i = 1; i <= numStudents; i++) {
-    const studentCourses = [];
-    const numCourses = Math.floor(Math.random() * 4) + 1;
-    while (studentCourses.length < numCourses) {
-      const randomCourse = courses[Math.floor(Math.random() * courses.length)];
-      if (!studentCourses.includes(randomCourse)) {
-        studentCourses.push(randomCourse);
-      }
-    }
-    students.push({ id: i, courses: studentCourses });
-  }
-  return students;
-}
+import { ExpandMore } from "@mui/icons-material";
+import axios from "axios";
 
-function timeToMinutes(timeRange) {
-  const [start, end] = timeRange.split(" - ");
-  const [startHour, startMin] = start.split(/[:APM]/).filter(Boolean);
-  const [endHour, endMin] = end.split(/[:APM]/).filter(Boolean);
-  const isPM = timeRange.includes("PM");
 
-  const startTimeInMinutes =
-    (parseInt(startHour) % 12) * 60 + parseInt(startMin) + (isPM ? 720 : 0);
-  const endTimeInMinutes =
-    (parseInt(endHour) % 12) * 60 + parseInt(endMin) + (isPM ? 720 : 0);
 
-  return { start: startTimeInMinutes, end: endTimeInMinutes };
-}
 
-function findFreeTimePerCourse(students, courseId) {
-  const timeSlots = new Map();
 
-  students.forEach((student) => {
-    const enrolledCourse = student.courses.find(
-      (course) => course.course_code === courseId
-    );
-    if (enrolledCourse) {
-      const { days, time } = enrolledCourse;
-      const timeRange = timeToMinutes(time);
-      if (!timeSlots.has(days)) {
-        timeSlots.set(days, []);
-      }
-      timeSlots.get(days).push(timeRange);
-    }
-  });
+export const StudentEnrollmentAnalyzerMainPage = () => {
+  const [selectedTable, setSelectedTable] = useState("math12");
+  const [loading, setLoading] = useState(false);
+  const [url, setURL] = useState("https://www.csus.edu/class-schedule/fall-2024/MATH");
+  const [filteredCourses, setFilteredCourses] = useState([]);
 
-  const possibleTimes = [];
-  timeSlots.forEach((times, day) => {
-    let freeTimeStart = 480; // Start at 8 AM
-    times.sort((a, b) => a.start - b.start);
-    for (const time of times) {
-      if (time.start > freeTimeStart) {
-        possibleTimes.push({ day, start: freeTimeStart, end: time.start });
-      }
-      freeTimeStart = time.end;
-    }
-    if (freeTimeStart < 1020) {
-      possibleTimes.push({ day, start: freeTimeStart, end: 1020 }); // Until 5 PM
-    }
-  });
+  const Math12TimeSlotCounts = useMath12TimeSlotCounts();
+  const Math29TimeSlotCounts = useMath29TimeSlotCounts();
+  const Math30TimeSlotCounts = useMath30TimeSlotCounts();
+  const Math31TimeSlotCounts = useMath31TimeSlotCounts();
+  const Math32TimeSlotCounts = useMath32TimeSlotCounts();
+  const Bio25TimeSlotCounts = useBio25TimeSlotCounts();
+  const Bio26TimeSlotCounts = useBio26TimeSlotCounts();
+  const Bio131TimeSlotCounts = useBio131TimeSlotCounts();
+  const Chem4TimeSlotCounts = useChem4TimeSlotCounts();
 
-  return possibleTimes;
-}
+  // Handle table selection change
+  const handleTableChange = (event) => {
+    setSelectedTable(event.target.value);
+  };
 
-function formatTime(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  const suffix = hours >= 12 ? "PM" : "AM";
-  const formattedHours = hours > 12 ? hours - 12 : hours;
-  return `${formattedHours}:${mins === 0 ? "00" : mins} ${suffix}`;
-}
-
-function StudentEnrollmentAnalyzerMainPage() {
-  const [students, setStudents] = useState([]);
-  const [courseFreeTimes, setCourseFreeTimes] = useState({});
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    const generatedStudents = generateStudentEnrollments(10, courses);
-    setStudents(generatedStudents);
-
-    const freeTimes = {};
-    courses.forEach((course) => {
-      freeTimes[course.course_code] = findFreeTimePerCourse(
-        generatedStudents,
-        course.course_code
+  // Handle URL input change
+  const handleSetURL = (e) => {
+    setURL(e.target.value);
+  };const handleSyncData = async () => {
+    setLoading(true);
+    try {
+      const headers = "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
+      const result = await axios.get(
+        `http://localhost:5000/scrape?url=${encodeURIComponent(url)}&headers=${headers}`
       );
-    });
-    setCourseFreeTimes(freeTimes);
+      
+      
+      await collectionAPI.syncDataToFirebase(result.data, "Fall", "2024-25");
+      
+      // Fetch updated courses and update state
+      const retrievedCourses = await collectionAPI.getCollection("courses");
+      setFilteredCourses(retrievedCourses);
+      
+      alert("Data synchronized successfully!");
+    } catch (error) {
+      console.error("Error syncing data:", error);
+      alert("Error syncing data. Check the console for more details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Effect to set filtered courses initially
+  useEffect(() => {
+    const fetchInitialCourses = async () => {
+      setLoading(true);
+      try {
+        const retrievedCourses = await collectionAPI.getCollection("courses");
+        setFilteredCourses(retrievedCourses);
+      } catch (error) {
+        console.error("Error fetching initial courses:", error);
+        setFilteredCourses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInitialCourses();
   }, []);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
-
+ 
   return (
-    <DefaultLayout title="Open Times Based on Student Schedule">
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow
-              style={{
-                backgroundColor: "#333333",
+    <div>
+      <DefaultLayout />
+      <Accordion sx={{ boxShadow: "none", mt: 2 }}>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+          sx={{ width: "180px" }}
+        >
+          <Typography fontWeight={600}>Sync Courses</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 3 }}>
+          <Grid spacing={2}>
+            <TextField
+              onChange={handleSetURL}
+              fullWidth
+              variant="outlined"
+              label="URL"
+              value={url}
+              placeholder="https://www.csus.edu/class-schedule/fall-2024/MATH"
+              helperText="The URL of the CSUS page to scrape course data from"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSyncData}
+                      disabled={loading}
+                    >
+                      {loading ? "Syncing..." : "Sync Data"}
+                    </Button>
+                  </InputAdornment>
+                ),
               }}
-            >
-              <TableCell
-                style={{
-                  borderRight: "2px solid #E5E4E2",
-                  color: "#fff",
-                }}
-              >
-                Course Name
-              </TableCell>
-              <TableCell
-                style={{
-                  borderRight: "2px solid #E5E4E2",
-                  color: "#fff",
-                }}
-              >
-                Course Section
-              </TableCell>
-              <TableCell
-                style={{
-                  borderRight: "2px solid #E5E4E2",
-                  color: "#fff",
-                }}
-              >
-                Open Availability
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {courses
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((course) => (
-                <TableRow
-                  key={course.course_code}
-                  sx={{
-                    "&:nth-of-type(even)": { backgroundColor: "#f9f9f9" },
-                  }}
-                >
-                  <TableCell
-                    style={{
-                      borderRight: "2px solid #E5E4E2",
-                    }}
-                  >
-                    {course.course_title}
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      borderRight: "2px solid #E5E4E2",
-                    }}
-                  >
-                    {course.section}
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      borderRight: "2px solid #E5E4E2",
-                    }}
-                  >
-                    {courseFreeTimes[course.course_code]?.length > 0 ? (
-                      <ul>
-                        {courseFreeTimes[course.course_code].map(
-                          (slot, index) => (
-                            <li key={index}>
-                              {slot.day}: {formatTime(slot.start)} -{" "}
-                              {formatTime(slot.end)}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    ) : (
-                      "No available time slots"
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-        {/* Pagination */}
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={courses.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          sx={{ backgroundColor: (theme) => theme.palette.grey[100] }}
-        />
-      </TableContainer>
-    </DefaultLayout>
+            />
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+
+      
+      <Box mb={2} display="flex" flexDirection="column" alignItems="center">
+        <Typography variant="h6">Select Data Table</Typography>
+        <Select value={selectedTable} onChange={handleTableChange} fullWidth>
+          
+          <MenuItem value="math29">Math 29 Time Slots</MenuItem>
+          <MenuItem value="math12">Math 12 Time Slots</MenuItem>
+          <MenuItem value="math30">Math 30 Time Slots</MenuItem>
+          <MenuItem value="math31">Math 31 Time Slots</MenuItem>
+          <MenuItem value="math32">Math 32 Time Slots</MenuItem>
+          <MenuItem value="Bio25">Bio 25 Time Slots</MenuItem>
+          <MenuItem value="Bio26">Bio 26 Time Slots</MenuItem>
+          <MenuItem value="Bio131">Bio 131 Time Slots</MenuItem>
+          <MenuItem value="chem4">Chem 4 Time Slots</MenuItem>
+
+
+
+
+        </Select>
+      </Box>
+      <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+        
+        
+
+        {selectedTable === "math12" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math12TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math12TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+
+</TableContainer>
+
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "math31" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math31TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math31TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "Bio26" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio26TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio26TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "chem4" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Chem4TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots </Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Chem4TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "Bio131" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio131TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio131TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "Bio25" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio25TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Bio25TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "math32" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math32TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math32TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "math29" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math29TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math29TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+
+
+<TableContainer component={Paper} sx={{ maxHeight: 400, overflow: "auto" }}>
+{selectedTable === "math30" && (
+          <Box display="flex" justifyContent="space-between" p={2}>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">MWF Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math30TimeSlotCounts.MWF).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box width="48%" component={Paper} p={2}>
+              <Typography variant="subtitle1">TR Time Slots</Typography>
+              <Table size="small">
+                <TableBody>
+                  {Object.entries(Math30TimeSlotCounts.TR).map(([slot, count], idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{slot}</TableCell>
+                      <TableCell>{count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        )}
+</TableContainer>
+    </div>
   );
-}
+};
 
 export default StudentEnrollmentAnalyzerMainPage;

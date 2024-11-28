@@ -80,20 +80,22 @@ export const Search = () => {
   const handleSyncData = async () => {
     setLoading(true);
     try {
-      const result = await axios(
-        `http://localhost:5000/scrape?url=${encodeURIComponent(
-          url
-        )}&headers=${headers}`
+      const headers = "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
+      const result = await axios.get(
+        `http://localhost:5000/scrape?url=${encodeURIComponent(url)}&headers=${headers}`
       );
+      
       setData(result.data);
-
-      await collectionAPI.syncDataToFirebase(result?.data, "Fall", "2024-25");
-
+      await collectionAPI.syncDataToFirebase(result.data, "Fall", "2024-25");
+      
+      // Fetch updated courses and update state
       const retrievedCourses = await collectionAPI.getCollection("courses");
-
       setFilteredCourses(retrievedCourses);
+      
+      alert("Data synchronized successfully!");
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error syncing data:", error);
+      alert("Error syncing data. Check the console for more details.");
       setData([]);
     } finally {
       setLoading(false);

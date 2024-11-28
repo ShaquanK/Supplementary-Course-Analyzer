@@ -136,7 +136,7 @@ function HomeMainPage() {
             <Button id="course_analyzer" component="a" href="/CourseTimeAnalyzer" sx={buttonStyle}>
               Course Time Analyzer
             </Button>
-            <Button component="a" href="/StudentAvailability" sx={buttonStyle}>
+            <Button id="student_availability" component="a" href="/StudentAvailability" sx={buttonStyle}>
               Student Availability
             </Button>
             <Typography

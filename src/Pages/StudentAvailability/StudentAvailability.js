@@ -313,6 +313,7 @@ function StudentAvailability() {
           </FormControl>
           <Box display="flex" alignItems="center">
             <TextField
+              id="new_course"
               label="New Course"
               value={newCourse}
               onChange={(e) => setNewCourse(e.target.value)}
@@ -321,6 +322,7 @@ function StudentAvailability() {
               fullWidth
             />
             <Button
+              id="add_course"
               onClick={handleAddCourse}
               variant="contained"
               color="primary"
@@ -367,6 +369,7 @@ function StudentAvailability() {
             )}
   
             <TextField
+              id="student_name"
               label="Student Name"
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
@@ -397,6 +400,7 @@ function StudentAvailability() {
               {timeSlots.map((slot, index) => (
                 <Box key={index} display="flex" alignItems="center" marginBottom={1}>
                   <TextField
+                    id="start_time"
                     label="Start Time"
                     type="time"
                     value={slot.startTime}
@@ -408,6 +412,7 @@ function StudentAvailability() {
                     style={{ marginRight: 16 }}
                   />
                   <TextField
+                    id="end_time"
                     label="End Time"
                     type="time"
                     value={slot.endTime}
@@ -427,11 +432,12 @@ function StudentAvailability() {
                   </IconButton>
                 </Box>
               ))}
-              <Button onClick={addTimeSlot} variant="outlined" color="primary">
+              <Button id='add_timeslot' onClick={addTimeSlot} variant="outlined" color="primary">
                 Add Time Slot
               </Button>
             </Box>
             <Button
+              id="submit_button"
               variant="contained"
               color="primary"
               onClick={editingStudentId ? handleUpdateStudent : handleSubmit}

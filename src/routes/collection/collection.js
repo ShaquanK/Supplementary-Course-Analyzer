@@ -1,4 +1,17 @@
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  endAt,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  setDoc,
+  startAfter,
+  startAt,
+  where,
+} from "firebase/firestore";
 import { db } from "../../utils/firebase";
 
 class CollectionAPI {
@@ -6,18 +19,104 @@ class CollectionAPI {
    * Retrieves all documents from a specified Firestore collection
    *
    * @param String colName - The name of the Firestore collection to query
+   * @param String pageSize - The limit for the number of pages
+   * @param String startAfterDocument - Document reference for cursor pagination
+   * @param String filters - filters object
    *
    * @returns Array
    */
-  getCollection = async (colName) => {
-    const querySnapshot = await getDocs(collection(db, colName));
-    const docsArray = [];
+  getCollection = async (
+    colName,
+    pageSize = 15,
+    startAfterDocument = null,
+    filters = {}
+  ) => {
+    try {
+      let queryRef = collection(db, colName);
 
-    querySnapshot.forEach((doc) => {
-      docsArray.push({ id: doc.id, ...doc.data() });
-    });
+      queryRef = query(queryRef, orderBy("course_name"), orderBy("section"));
 
-    return docsArray;
+      // Apply filters before applying the limit
+      if (filters?.instructor) {
+        queryRef = query(
+          queryRef,
+          where("instructor", "==", filters.instructor)
+        );
+      }
+
+      if (filters?.query) {
+        queryRef = query(queryRef, where("course_name", "==", filters.query));
+      }
+      if (filters?.days) {
+        queryRef = query(queryRef, where("days", "==", filters.days));
+      }
+      if (filters?.section) {
+        queryRef = query(queryRef, where("section", "==", filters.section));
+      }
+      if (filters?.startTime) {
+        queryRef = query(
+          queryRef,
+          where("start_time", "==", filters.startTime)
+        );
+      }
+
+      if (filters?.endTime) {
+        queryRef = query(queryRef, where("end_time", "==", filters.endTime));
+      }
+      if (filters?.showAvail == true) {
+        queryRef = query(queryRef, where("seats", ">=", "1"));
+      }
+
+      if (startAfterDocument) {
+        queryRef = query(queryRef, startAfter(startAfterDocument));
+      }
+
+      queryRef = query(queryRef, limit(pageSize));
+
+      const querySnapshot = await getDocs(queryRef);
+
+      const docsArray = [];
+      querySnapshot.forEach((doc) => {
+        docsArray.push({ id: doc.id, ...doc.data() });
+      });
+
+      const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+      return { docsArray, lastVisible };
+    } catch (error) {
+      console.error("Error fetching collection:", error);
+      return { docsArray: [], lastVisible: null };
+    }
+  };
+
+  getUniqueTimesFromFirebase = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "courses"));
+
+      const uniqueStartTimes = new Set();
+      const uniqueEndTimes = new Set();
+
+      querySnapshot.forEach((doc) => {
+        const course = doc.data();
+        if (course.start_time) uniqueStartTimes.add(course.start_time);
+        if (course.end_time) uniqueEndTimes.add(course.end_time);
+      });
+
+      const startTimes = [...uniqueStartTimes];
+      const endTimes = [...uniqueEndTimes];
+
+      startTimes.sort((a, b) => {
+        return a.localeCompare(b);
+      });
+
+      endTimes.sort((a, b) => {
+        return a.localeCompare(b);
+      });
+
+      return { startTimes, endTimes };
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
   };
 
   /**

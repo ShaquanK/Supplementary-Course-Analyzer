@@ -6,7 +6,8 @@
 #webdriver-manager 4.0.2
 #Windows 11 23H2
 
-# Istall python-dotenv and webdriver-manager python packages
+# pip install selenium
+# pip install webdriver-manager
 # This login script uses a .env file.
 # Setup .env file in same folder as the script.
 # .env file has two fields: "LOGIN_EMAIL" & "LOGIN_PASSWORD"

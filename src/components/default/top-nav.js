@@ -31,7 +31,7 @@ const menuOptions = [
     path: "/StudentEnrollmentAnalyzer",
   },
   { label: "User List", path: "/users" },
-  { label: "Manage User", path: "/ManageUser" },
+  { label: "Manage User", path: "/ManageUser", id:"manage_user" },
 ];
 
 export const TopNav = () => {
@@ -117,6 +117,7 @@ export const TopNav = () => {
           >
             <RouterLink to="https://www.csus.edu/apply/index.html">
               <ListItemText
+                id="apply_button"
                 primary="APPLY"
                 primaryTypographyProps={{
                   fontSize: "18px",
@@ -133,6 +134,7 @@ export const TopNav = () => {
           >
             <RouterLink to="https://www.csus.edu/experience/index.html">
               <ListItemText
+                id="experience_button"
                 primary="EXPERIENCE"
                 primaryTypographyProps={{
                   fontSize: "18px",
@@ -152,6 +154,7 @@ export const TopNav = () => {
               sx={{ marginRight: 2 }}
             >
               <ListItemText
+                id="give_button"
                 primary="GIVE"
                 primaryTypographyProps={{
                   fontSize: "18px",
@@ -198,6 +201,7 @@ export const TopNav = () => {
                   component={RouterLink}
                   to={option.path}
                   key={option.path}
+                  id={option.id || option.label.toLowerCase().replace(/\s+/g, "_")}
                   sx={{
                     color: "white",
                     "&:hover": {

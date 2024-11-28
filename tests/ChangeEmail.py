@@ -8,47 +8,53 @@ from selenium.webdriver.support import expected_conditions as EC
 driver = webdriver.Firefox()
 wait = WebDriverWait(driver, 10)
 
-driver.get("http://localhost:3000/")
+try:
+    driver.get("http://localhost:3000/")
 
-username = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id=":r1:"]'))
-    )
+    username = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'email_field'))
+        )
 
-username.send_keys("csuscatest@gmail.com")
+    username.send_keys("csuscatest@gmail.com")
 
-password = driver.find_element(By.XPATH, '//*[@id=":r3:"]')
-password.send_keys("test1234!") 
+    password = driver.find_element(By.ID, 'password_field')
+    password.send_keys("test1234!") 
 
-login_button = driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div[2]/div[2]/button[1]')
-login_button.click()
+    login_button = driver.find_element(By.ID, 'login_button')
+    login_button.click()
 
-time.sleep(11)
+    time.sleep(2)
 
-menu_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[1]/div[1]/nav/li[4]/button'))
-    )
-menu_button.click()
+    menu_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, 'menu_button'))
+        )
+    menu_button.click()
 
-manage_user_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/ul/a[9]/div/div/span')
-manage_user_button.click()
+    manage_user_button = driver.find_element(By.ID, 'manage_user')
+    manage_user_button.click()
 
-time.sleep(3)
+    time.sleep(3)
 
-manage_email_button = driver.find_element(By.XPATH, '/html/body/div/div/div/div[2]/div/div/div/div/div/p[2]')
-manage_email_button.click()
+    manage_email_button = driver.find_element(By.ID, 'manage_email')
+    manage_email_button.click()
 
-current_user_field = wait.until(EC.element_to_be_clickable((By.XPATH,'//*[@id=":rb:"]')))
-current_user_field.send_keys('csuscatest@gmail.com')
+    current_user_field = wait.until(EC.element_to_be_clickable((By.ID,'current_email')))
+    current_user_field.send_keys('csuscatest@gmail.com')
 
-old_password_field = wait.until(EC.element_to_be_clickable((By.XPATH,'//*[@id=":rd:"]')))
-old_password_field.send_keys('test1234!')
+    old_password_field = wait.until(EC.element_to_be_clickable((By.ID,'old_password')))
+    old_password_field.send_keys('test1234!')
 
-new_email_field = driver.find_element(By.XPATH, '//*[@id=":rf:"]')
-new_email_field.send_keys('csustestca2@gmail.com')
+    new_email_field = driver.find_element(By.ID, 'new_email')
+    new_email_field.send_keys('csustestca2@gmail.com')
 
-update_email_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/div[2]/button[2]')
-update_email_button.click()
+    update_email_button = driver.find_element(By.ID, 'update_email')
+    update_email_button.click()
 
-time.sleep(3)
-driver.close()
+    time.sleep(3)
+
+except Exception as e:
+    print("Script failed")
+    print(f"Error: {e}")
+finally:
+    driver.quit()
 

@@ -126,6 +126,7 @@ const Register = () => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
+                id="display_name"
                 fullWidth
                 type="text"
                 label="Display Name"
@@ -137,6 +138,7 @@ const Register = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                id="email_field"
                 fullWidth
                 type="email"
                 label="Email"
@@ -149,6 +151,7 @@ const Register = () => {
 
             <Grid item xs={12}>
               <TextField
+                id="password_field"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 fullWidth
@@ -176,6 +179,7 @@ const Register = () => {
 
             <Grid item xs={12}>
               <TextField
+                id="password_confirm"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 fullWidth
@@ -207,7 +211,7 @@ const Register = () => {
 
           {errorMessage?.length >= 1 && (
             <Grid xs={12} mt={3}>
-              <Alert severity="error">{errorMessage}</Alert>
+              <Alert id="error_message" severity="error">{errorMessage}</Alert>
             </Grid>
           )}
           {successMessage?.length >= 1 && (
@@ -216,7 +220,7 @@ const Register = () => {
             </Grid>
           )}
           <Grid item sm={6} display="flex" justifyContent="center" mt={3}>
-            <Button type="submit" variant="contained">
+            <Button id="signup_button" type="submit" variant="contained">
               Sign Up
             </Button>
           </Grid>

@@ -162,7 +162,7 @@ export const TopNav = () => {
             </RouterLink>
           </ListItem>
           <ListItem>
-            <IconButton onClick={toggleMenu}>
+            <IconButton id="menu_button" onClick={toggleMenu}>
               <MenuIcon
                 fontSize="large"
                 sx={{
@@ -213,6 +213,7 @@ export const TopNav = () => {
               {user && (
                 <ListItem disablePadding>
                   <ListItemButton
+                    id="logout_button"
                     onClick={handleLogout}
                     sx={{
                       color: "white",

@@ -149,7 +149,7 @@ const Login = () => {
 
         <Box sx={{ p: 9 , width:'75%'}}>
           {errorMessage && (
-            <Box sx={{ color: 'white', textAlign: 'center', mb: 2 }}>{errorMessage}</Box>
+            <Box id="error_message" sx={{ color: 'white', textAlign: 'center', mb: 2 }}>{errorMessage}</Box>
           )}
 
           <Box sx={{ mb: 2 }}>
@@ -159,6 +159,7 @@ const Login = () => {
               </Grid>
               <Grid item xs={9}>
                 <TextField
+                  id="email_field"
                   fullWidth
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -180,6 +181,7 @@ const Login = () => {
               <Grid item xs={9}>
                 <Box sx={{ position: 'relative' }}>
                   <TextField
+                    id="password_field"
                     fullWidth
                     type={showPassword ? "text" : "password"}
                     value={password}
@@ -207,6 +209,7 @@ const Login = () => {
           </Box>
 
           <Button
+            id="login_button"
             fullWidth
             sx={{ backgroundColor: '#0FA153', color: 'white', mb: 2, 
               padding: '8px 16px', 
@@ -221,9 +224,10 @@ const Login = () => {
 
           <Button
             onClick={() => {
-            
+
             navigate('/Register'); }}
             fullWidth
+            id="register_button"
             sx={{ backgroundColor: '#0FA153', color: 'white', mb: 2, 
               padding: '8px 16px', 
             width: '55.55%', 

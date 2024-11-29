@@ -25,25 +25,18 @@ class CollectionAPI {
    *
    * @returns Array
    */
-  getCollection = async (
-    colName,
-    pageSize = 15,
-    startAfterDocument = null,
-    filters = {}
-  ) => {
+  getCollection = async (colName, pageSize = 15, filters = {}) => {
     try {
       let queryRef = collection(db, colName);
 
       queryRef = query(queryRef, orderBy("course_name"), orderBy("section"));
 
-      // Apply filters before applying the limit
       if (filters?.instructor) {
         queryRef = query(
           queryRef,
           where("instructor", "==", filters.instructor)
         );
       }
-
       if (filters?.query) {
         queryRef = query(queryRef, where("course_name", "==", filters.query));
       }
@@ -67,8 +60,8 @@ class CollectionAPI {
         queryRef = query(queryRef, where("seats", ">=", "1"));
       }
 
-      if (startAfterDocument) {
-        queryRef = query(queryRef, startAfter(startAfterDocument));
+      if (filters?.lastVisible) {
+        queryRef = query(queryRef, startAfter(filters.lastVisible));
       }
 
       queryRef = query(queryRef, limit(pageSize));
@@ -76,8 +69,12 @@ class CollectionAPI {
       const querySnapshot = await getDocs(queryRef);
 
       const docsArray = [];
+
       querySnapshot.forEach((doc) => {
-        docsArray.push({ id: doc.id, ...doc.data() });
+        docsArray.push({
+          data: { id: doc.id, ...doc.data() },
+          snapshot: doc,
+        });
       });
 
       const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];

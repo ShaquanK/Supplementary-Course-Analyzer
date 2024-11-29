@@ -7,10 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
-import uniq from "lodash/uniq";
-import compact from "lodash/compact";
-
+import { useEffect, useState } from "react";
 import { parseTime } from "../../../utils/parse-time";
 import { collectionAPI } from "../../../routes/collection/collection";
 
@@ -29,6 +26,9 @@ const style = {
 
 export const FilterModal = ({
   isOpened,
+  section,
+  startTime,
+  endTime,
   onClose,
   onFilter,
   onSetSection,
@@ -93,6 +93,7 @@ export const FilterModal = ({
             <TextField {...params} label="Section" size="small" />
           )}
           onChange={(_, value) => handleSetSection(value)}
+          defaultValue={section}
         />
 
         <Stack
@@ -114,6 +115,7 @@ export const FilterModal = ({
               </Typography>
             )}
             onChange={(_, value) => handleSetStartTime(value)}
+            defaultValue={startTime}
           />
 
           <Autocomplete
@@ -129,6 +131,7 @@ export const FilterModal = ({
               </Typography>
             )}
             onChange={(_, value) => handleSetEndTime(value)}
+            defaultValue={endTime}
           />
         </Stack>
 

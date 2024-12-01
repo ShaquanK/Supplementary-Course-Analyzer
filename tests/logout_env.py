@@ -1,5 +1,5 @@
 # pip install selenium
-# pip install webdriver-manager
+# pip install python-dotenv
 # This login script uses a .env file.
 # Setup .env file in same folder as the script.
 # .env file has two fields: "LOGIN_EMAIL" & "LOGIN_PASSWORD"
@@ -9,8 +9,6 @@ import sys
 import time
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

@@ -59,6 +59,9 @@ const Login = () => {
             errorMsg = `Your account has been temporarily locked due to too many failed login attempts. 
             Please reset your password or try again later.`;
             break;
+          case "auth/wrong-password":
+            errorMsg = "Incorrect Email or Password";
+            break;
           default:
             errorMsg = error.message;
         }

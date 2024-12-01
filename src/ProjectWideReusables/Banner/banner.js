@@ -68,17 +68,6 @@ const Banner = () => {
             onClose={handleClose}
           >
             <Button
-              href="/CourseTimeAnalyzer"
-              variant="contained"
-              sx={{
-                backgroundColor: "#486b7a",
-                color: "white",
-                "&:hover": { backgroundColor: "#124459" },
-              }}
-            >
-              Course Time Analyzer{" "}
-            </Button>
-            <Button
               href="/Creators"
               variant="contained"
               sx={{

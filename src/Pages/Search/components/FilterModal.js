@@ -2,8 +2,10 @@ import {
   Autocomplete,
   Box,
   Button,
+  FormControlLabel,
   Modal,
   Stack,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -29,17 +31,24 @@ export const FilterModal = ({
   section,
   startTime,
   endTime,
+  showAvail,
   onClose,
   onFilter,
   onSetSection,
   onSetEndTime,
   onSetStartTime,
+  onSetShowAvail,
 }) => {
   const [startTimes, setStartTimes] = useState([]);
   const [endTimes, setEndTimes] = useState([]);
   const sections = Array.from({ length: 30 }, (_, index) => {
     return (index + 1).toString().padStart(2, "0");
   });
+
+  const [initialStartTime, setInitialStartTime] = useState(startTime);
+  const [initialEndTime, setInitialEndTime] = useState(endTime);
+  const [initialSection, setInitialSection] = useState(section);
+  const [initialShowAvail, setInitialShowAvail] = useState(showAvail);
 
   const handleSetStartTime = (val) => {
     onSetStartTime(val);
@@ -65,7 +74,15 @@ export const FilterModal = ({
   }, []);
 
   const handleFilter = () => {
-    onFilter();
+    // Check if any of the values (startTime, endTime, section, showAvail) have changed
+    const hasFilterChanged =
+      startTime !== initialStartTime ||
+      endTime !== initialEndTime ||
+      section !== initialSection ||
+      showAvail !== initialShowAvail;
+
+    onFilter(hasFilterChanged);
+
     onClose();
   };
 
@@ -73,21 +90,17 @@ export const FilterModal = ({
     <Modal
       open={isOpened}
       onClose={onClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      aria-labelledby="course-filter-modal"
+      id="course-filter-modal"
     >
-      <Box sx={{ ...style, width: 400 }}>
-        <Typography
-          id="modal-modal-title"
-          variant="h5"
-          component="h2"
-          style={{ fontWeight: 600 }}
-        >
+      <Box id="course-filter-inner" sx={{ ...style, width: 400 }}>
+        <Typography variant="h5" component="h2" style={{ fontWeight: 600 }}>
           Course Filter
         </Typography>
 
         <Autocomplete
           sx={{ mt: 2 }}
+          id="section-input"
           options={sections}
           renderInput={(params) => (
             <TextField {...params} label="Section" size="small" />
@@ -104,6 +117,7 @@ export const FilterModal = ({
         >
           <Autocomplete
             sx={{ mt: 2, flex: 1 }}
+            id="start-time-input"
             options={startTimes}
             renderInput={(params) => (
               <TextField {...params} label="Start Time" size="small" />
@@ -120,6 +134,7 @@ export const FilterModal = ({
 
           <Autocomplete
             sx={{ mt: 2, flex: 1 }}
+            id="end-time-input"
             options={endTimes}
             renderInput={(params) => (
               <TextField {...params} label="End Time" size="small" />
@@ -135,9 +150,27 @@ export const FilterModal = ({
           />
         </Stack>
 
+        <Stack mt={1}>
+          <FormControlLabel
+            value="end"
+            id="available-classes-input"
+            control={
+              <Switch
+                color="primary"
+                checked={showAvail}
+                onChange={(v) => onSetShowAvail(v.target.checked)}
+              />
+            }
+            label="Show available classes only"
+            labelPlacement="start"
+            style={{ marginLeft: "auto" }}
+          />
+        </Stack>
+
         <Box sx={{ textAlign: "right", mt: 3 }}>
           <Button
             variant="contained"
+            id="filter-button"
             style={{ marginLeft: "auto" }}
             onClick={handleFilter}
           >

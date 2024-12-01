@@ -1,16 +1,4 @@
-import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Stack,
-  Typography,
-  Button,
-  Alert,
-  Box,
-  IconButton,
-  Card,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { useLocation } from "react-router-dom";
+import { Grid, Stack, Typography, Button } from "@mui/material";
 import DefaultLayout from "../../components/default/layout";
 
 function HomeMainPage() {
@@ -27,45 +15,6 @@ function HomeMainPage() {
     color: "white",
     width: "100%",
     borderRadius: "4px",
-  };
-
-  const [notifications, setNotifications] = useState([]);
-  const location = useLocation();
-
-  useEffect(() => {
-    const sampleNotifications = [
-      { message: "Test notification 1: New course added", severity: "info" },
-      {
-        message: "Test notification 3: Course analyzer updated",
-        severity: "success",
-      },
-      {
-        message: "Test notification 4: Database error occurred",
-        severity: "error",
-      },
-    ];
-
-    // Check if login success state is passed
-    if (location.state?.loginSuccess) {
-      sampleNotifications.unshift({
-        message: "Login successful! Welcome to the homepage.",
-        severity: "success",
-      });
-    }
-
-    setNotifications(sampleNotifications);
-
-    const timer = setTimeout(() => {
-      setNotifications([]);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [location.state]);
-
-  const handleClose = (index) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.filter((_, i) => i !== index)
-    );
   };
 
   return (
@@ -162,28 +111,6 @@ function HomeMainPage() {
           </Stack>
         </Grid>
       </Grid>
-      <Box sx={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
-        <Stack spacing={2} mr={2}>
-          {notifications.map((notification, index) => (
-            <Alert
-              key={index}
-              severity={notification.severity}
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  onClick={() => handleClose(index)}
-                >
-                  <CloseIcon />
-                </IconButton>
-              }
-              sx={{ width: "100%" }}
-            >
-              {notification.message}
-            </Alert>
-          ))}
-        </Stack>
-      </Box>
     </DefaultLayout>
   );
 }

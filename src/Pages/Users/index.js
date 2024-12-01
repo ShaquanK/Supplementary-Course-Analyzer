@@ -20,8 +20,10 @@ import {
 import DefaultLayout from "../../components/default/layout";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useSnackbar } from "notistack";
 
 const UserList = () => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -57,10 +59,16 @@ const UserList = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      await userAPI.deleteUser(userId);
+      await userAPI.deleteUser(userId).then((resp) => {
+        enqueueSnackbar("User deleted successfully", {
+          variant: "success",
+        });
+      });
       setUsers(users.filter((user) => user.uid !== userId));
-      console.log("User deleted:", userId);
     } catch (error) {
+      enqueueSnackbar("Something went wrong when attempting to delete user", {
+        variant: "error",
+      });
       console.error("Error deleting user:", error);
     }
   };
@@ -119,6 +127,7 @@ const UserList = () => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => (
                   <TableRow
+                    id="users-table"
                     key={user.uid}
                     sx={{
                       "&:nth-of-type(even)": { backgroundColor: "#f9f9f9" },
@@ -153,6 +162,7 @@ const UserList = () => {
                       }}
                     >
                       <IconButton
+                        id="delete-user-button"
                         onClick={() => handleDeleteUser(user?.uid)}
                         sx={{
                           width: 40,

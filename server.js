@@ -53,9 +53,11 @@ async function scrape(url, columnHeadersString) {
         // Get the title from the h2 element in the section
         const titleElement = await tableDiv.$("h2");
         const idProperty = await titleElement.getProperty("id");
-const id = (await idProperty.jsonValue()).replace(/-/g, " ").toLowerCase().trim();
-console.log("Element ID:", id);
-
+        const id = (await idProperty.jsonValue())
+          .replace(/-/g, " ")
+          .toLowerCase()
+          .trim();
+        console.log("Element ID:", id);
 
         const title = await (
           await titleElement.getProperty("innerText")

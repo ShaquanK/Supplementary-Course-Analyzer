@@ -18,6 +18,7 @@ import {
   IconButton,
   Switch,
   FormControlLabel,
+  useMediaQuery,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from "@mui/icons-material/Search";
@@ -48,6 +49,8 @@ export const Search = () => {
   const [url, setURL] = useState(
     "https://www.csus.edu/class-schedule/fall-2024/MATH"
   );
+
+  const mdUp = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   const headers =
     "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
@@ -201,22 +204,24 @@ export const Search = () => {
             Advanced Filter {filterCount >= 1 && `(${filterCount})`}
           </Button>
         </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            value="end"
-            id="calendar-view-toggle"
-            control={
-              <Switch
-                color="primary"
-                checked={isCalendarView}
-                onChange={(v) => setIsCalendarView(v.target.checked)}
-              />
-            }
-            label="Calendar View"
-            labelPlacement="start"
-            style={{ marginLeft: "auto" }}
-          />
-        </Grid>
+        {mdUp && (
+          <Grid item xs={12}>
+            <FormControlLabel
+              value="end"
+              id="calendar-view-toggle"
+              control={
+                <Switch
+                  color="primary"
+                  checked={isCalendarView}
+                  onChange={(v) => setIsCalendarView(v.target.checked)}
+                />
+              }
+              label="Calendar View"
+              labelPlacement="start"
+              style={{ marginLeft: "auto" }}
+            />
+          </Grid>
+        )}
       </Grid>
       <Accordion sx={{ boxShadow: "none", mt: 2 }}>
         <AccordionSummary
@@ -263,7 +268,7 @@ export const Search = () => {
       ) : courses?.length >= 1 ? (
         <Grid container>
           <TableContainer>
-            {isCalendarView ? (
+            {isCalendarView && mdUp ? (
               <CalendarView id="calendar-view" courses={courses} />
             ) : (
               <Table>

@@ -123,7 +123,7 @@ export const CalendarView = ({ courses }) => {
 
           <TableBody>
             {hours.map((hour) => (
-              <TableRow key={hour.hour}>
+              <TableRow key={`${hour.hour}-${hour.period}`}>
                 <TableCell
                   id={`${hour.hour}:00 ${hour.period}`}
                   component="th"
@@ -145,13 +145,28 @@ export const CalendarView = ({ courses }) => {
                       {matchedCourses?.length ? (
                         <Box
                           id={`${hour.hour}-${day.key}-match`}
+                          className="view-courses-button"
                           sx={{
                             fontWeight: 600,
+                            borderRadius: "5px",
+                            cursor: "pointer",
                             backgroundColor: "rgba(34, 197, 94, 0.8)",
+                            color: "white",
+                            textAlign: "center",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            "&:hover": {
+                              transition: ".35s ease",
+                              backgroundColor: (theme) =>
+                                theme.palette.primary.dark,
+                            },
                           }}
                           minHeight={30}
                           minWidth="100%"
-                        />
+                        >
+                          View Course(s)
+                        </Box>
                       ) : (
                         <Box minHeight={30}>-</Box>
                       )}
@@ -170,7 +185,7 @@ export const CalendarView = ({ courses }) => {
             <Box>
               {matchedCourses.map((course, index) => (
                 <Box
-                  key={course?.data?.name}
+                  key={`${course?.data?.name}-${course?.data?.section}`}
                   id={course?.data?.name}
                   sx={{ marginBottom: 2 }}
                 >
@@ -190,7 +205,7 @@ export const CalendarView = ({ courses }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} id="close-modal-button" color="primary">
             Close
           </Button>
         </DialogActions>

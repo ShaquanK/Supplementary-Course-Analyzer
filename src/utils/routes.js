@@ -6,7 +6,6 @@ import CreatorsMainPage from "../Pages/CreatorsPage/CreatorsMainPage";
 import StudentEnrollmentAnalyzerMainPage from "../Pages/StudentEnrollmentAnalyzerPage/StudentEnrollmentAnalyzerMainPage";
 import LoginMainPage from "../Pages/LoginPage/LoginMainPage";
 import { Search } from "../Pages/Search/search";
-import CourseTimeAnalyzer from "../Pages/CourseTimeAnalyzerPage/CourseTimeAnalyzer";
 import StudentAvailability from "../Pages/StudentAvailability/StudentAvailability";
 
 // route authentication
@@ -29,10 +28,7 @@ const RouteProvider = () => {
           {/* Protected Routes */}
           <Route element={<ProtectedRoutes />}>
             <Route path="/" element={<HomeMainPage />} />
-            <Route
-              path="/CourseTimeAnalyzer"
-              element={<CourseTimeAnalyzer />}
-            />
+
             <Route path="/Creators" element={<CreatorsMainPage />} />
             <Route
               path="/StudentEnrollmentAnalyzer"

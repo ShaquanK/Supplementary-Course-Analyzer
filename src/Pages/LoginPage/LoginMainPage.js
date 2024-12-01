@@ -2,9 +2,22 @@ import React, { useState } from "react";
 import backgroundImage from "../../img/background.jpg";
 import loginIcon from "../../img/login-icon.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  getAuth,
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Grid, TextField, Box } from '@mui/material';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Grid,
+  TextField,
+  Box,
+} from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -63,12 +76,12 @@ const Login = () => {
   const handleClose = () => setOpen(false);
 
   const [openManagePassword, setOpenManagePassword] = useState(false);
-  const [emailForReset, setEmailForReset] = useState('');
-  const [errorResetPassword, setErrorResetPassword] = useState('');
+  const [emailForReset, setEmailForReset] = useState("");
+  const [errorResetPassword, setErrorResetPassword] = useState("");
 
   const handleManagePasswordOpen = () => {
-    setErrorResetPassword('');
-    setEmailForReset('');
+    setErrorResetPassword("");
+    setEmailForReset("");
     setOpenManagePassword(true);
   };
 
@@ -78,7 +91,7 @@ const Login = () => {
     const auth = getAuth();
     sendPasswordResetEmail(auth, emailForReset)
       .then(() => {
-        alert('Password reset email sent!');
+        alert("Password reset email sent!");
         setOpenManagePassword(false);
       })
       .catch((error) => {
@@ -99,63 +112,76 @@ const Login = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        position: 'relative',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        position: "relative",
       }}
     >
       <Box
         sx={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: "100%",
+          height: "100%",
           backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'blur(5px)',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(5px)",
           zIndex: -1,
         }}
       />
       <Box
         sx={{
-          width: '75%',
+          width: "75%",
           maxWidth: 770,
-          backgroundColor: 'white',
+          backgroundColor: "white",
           borderRadius: 2,
           boxShadow: 3,
-          background: 'linear-gradient(to bottom, #17503e 70%, #001E13 100%)',
+          background: "linear-gradient(to bottom, #17503e 70%, #001E13 100%)",
           opacity: 0.9,
-          textAlign: 'center',
+          textAlign: "center",
         }}
       >
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#CBB778',
-            width: '100%',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#CBB778",
+            width: "100%",
             borderTopRightRadius: 4,
             borderTopLeftRadius: 4,
             py: 1,
           }}
         >
-          <img src={loginIcon} alt="Login Icon" style={{ width: '50%', height: 'auto' }} />
+          <img
+            src={loginIcon}
+            alt="Login Icon"
+            style={{ width: "50%", height: "auto" }}
+          />
         </Box>
 
-        <Box sx={{ p: 9 , width:'75%'}}>
+        <Box sx={{ p: 9, width: "75%" }}>
           {errorMessage && (
-            <Box id="error_message" sx={{ color: 'white', textAlign: 'center', mb: 2 }}>{errorMessage}</Box>
+            <Box
+              id="error_message"
+              sx={{ color: "white", textAlign: "center", mb: 2 }}
+            >
+              {errorMessage}
+            </Box>
           )}
 
           <Box sx={{ mb: 2 }}>
             <Grid container alignItems="center">
               <Grid item xs={3}>
-                <label style={{ color: 'white', fontSize: 15, fontWeight:'medium'}}>Email</label>
+                <label
+                  style={{ color: "white", fontSize: 15, fontWeight: "medium" }}
+                >
+                  Email
+                </label>
               </Grid>
               <Grid item xs={9}>
                 <TextField
@@ -164,9 +190,11 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   error={loginClicked && !email}
-                  helperText={loginClicked && !email ? 'Please enter your email' : ''}
+                  helperText={
+                    loginClicked && !email ? "Please enter your email" : ""
+                  }
                   InputProps={{
-                    sx: { backgroundColor: 'white', width: '73.7%' }
+                    sx: { backgroundColor: "white", width: "73.7%" },
                   }}
                 />
               </Grid>
@@ -176,10 +204,14 @@ const Login = () => {
           <Box sx={{ mb: 2 }}>
             <Grid container alignItems="center">
               <Grid item xs={3}>
-                <label style={{ color: 'white', fontSize: 15,fontWeight:'medium' }}>Password</label>
+                <label
+                  style={{ color: "white", fontSize: 15, fontWeight: "medium" }}
+                >
+                  Password
+                </label>
               </Grid>
               <Grid item xs={9}>
-                <Box sx={{ position: 'relative' }}>
+                <Box sx={{ position: "relative" }}>
                   <TextField
                     id="password_field"
                     fullWidth
@@ -187,18 +219,22 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     error={loginClicked && !password}
-                    helperText={loginClicked && !password ? 'Please enter your password' : ''}
+                    helperText={
+                      loginClicked && !password
+                        ? "Please enter your password"
+                        : ""
+                    }
                     InputProps={{
-                      sx: { backgroundColor: 'white', width: '73.7%' }
+                      sx: { backgroundColor: "white", width: "73.7%" },
                     }}
                   />
                   <Button
                     onClick={togglePasswordVisibility}
                     sx={{
-                      position: 'absolute',
+                      position: "absolute",
                       right: 110,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
+                      top: "50%",
+                      transform: "translateY(-50%)",
                     }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -211,11 +247,14 @@ const Login = () => {
           <Button
             id="login_button"
             fullWidth
-            sx={{ backgroundColor: '#0FA153', color: 'white', mb: 2, 
-              padding: '8px 16px', 
-            width: '55.55%', 
-            fontSize: '1rem',
-            ml:4,
+            sx={{
+              backgroundColor: "#0FA153",
+              color: "white",
+              mb: 2,
+              padding: "8px 16px",
+              width: "55.55%",
+              fontSize: "1rem",
+              ml: 4,
             }}
             onClick={handleLogin}
           >
@@ -224,21 +263,32 @@ const Login = () => {
 
           <Button
             onClick={() => {
-
-            navigate('/Register'); }}
+              navigate("/Register");
+            }}
             fullWidth
             id="register_button"
-            sx={{ backgroundColor: '#0FA153', color: 'white', mb: 2, 
-              padding: '8px 16px', 
-            width: '55.55%', 
-            fontSize: '1rem',
-            ml:4,
+            sx={{
+              backgroundColor: "#0FA153",
+              color: "white",
+              mb: 2,
+              padding: "8px 16px",
+              width: "55.55%",
+              fontSize: "1rem",
+              ml: 4,
             }}
           >
             Create New Account
           </Button>
 
-          <Box sx={{ textAlign: 'center', cursor: 'pointer', color: '#007bff', '&:hover': { textDecoration: 'underline' } }} onClick={handleManagePasswordOpen}>
+          <Box
+            sx={{
+              textAlign: "center",
+              cursor: "pointer",
+              color: "#007bff",
+              "&:hover": { textDecoration: "underline" },
+            }}
+            onClick={handleManagePasswordOpen}
+          >
             Manage Password
           </Box>
           {/* Create Account Dialog 
@@ -271,7 +321,9 @@ const Login = () => {
             <DialogTitle>Manage Password</DialogTitle>
             <DialogContent>
               {errorResetPassword && (
-                <Box sx={{ color: 'red', textAlign: 'center', mb: 2 }}>{errorResetPassword}</Box>
+                <Box sx={{ color: "red", textAlign: "center", mb: 2 }}>
+                  {errorResetPassword}
+                </Box>
               )}
               <TextField
                 autoFocus
@@ -284,10 +336,16 @@ const Login = () => {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleSendPasswordResetEmail} sx={{ backgroundColor: '#0FA153', color: 'white' }}>
+              <Button
+                onClick={handleSendPasswordResetEmail}
+                sx={{ backgroundColor: "#0FA153", color: "white" }}
+              >
                 Submit
               </Button>
-              <Button onClick={handleManagePasswordClose} sx={{ backgroundColor: '#0FA153', color: 'white' }}>
+              <Button
+                onClick={handleManagePasswordClose}
+                sx={{ backgroundColor: "#0FA153", color: "white" }}
+              >
                 Cancel
               </Button>
             </DialogActions>

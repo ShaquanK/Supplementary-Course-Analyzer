@@ -37,7 +37,7 @@ try:
         EC.presence_of_element_located((By.ID, 'apply_button'))
     )
     apply_link.click()
-
+    print("Apply Link Working")
     time.sleep(3)
     driver.back()
     time.sleep(3)
@@ -48,6 +48,7 @@ try:
     )
     experience_link.click()
     time.sleep(3)
+    print("Experience Link Working")
     driver.back()
     time.sleep(3)
     #Tests link to sac state give page
@@ -56,9 +57,11 @@ try:
         EC.presence_of_element_located((By.ID, 'give_button'))
     )
     give_link.click()
+    print("Give Link Working")
     time.sleep(3)
     driver.back()
     time.sleep(3)
+    print("All Link Test Successful")
 
 except Exception as e:
     print("Script failed")

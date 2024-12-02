@@ -55,10 +55,6 @@ import axios from "axios";
 
 export const StudentEnrollmentAnalyzerMainPage = () => {
   const [selectedTable, setSelectedTable] = useState("math12");
-  const [loading, setLoading] = useState(false);
-  const [url, setURL] = useState("https://www.csus.edu/class-schedule/fall-2024/MATH");
-  const [filteredCourses, setFilteredCourses] = useState([]);
-
   const Math12TimeSlotCounts = useMath12TimeSlotCounts();
   const Math29TimeSlotCounts = useMath29TimeSlotCounts();
   const Math30TimeSlotCounts = useMath30TimeSlotCounts();
@@ -69,99 +65,18 @@ export const StudentEnrollmentAnalyzerMainPage = () => {
   const Bio131TimeSlotCounts = useBio131TimeSlotCounts();
   const Chem4TimeSlotCounts = useChem4TimeSlotCounts();
 
-  // Handle table selection change
-  const handleTableChange = (event) => {
-    setSelectedTable(event.target.value);
-  };
-
-  // Handle URL input change
-  const handleSetURL = (e) => {
-    setURL(e.target.value);
-  };const handleSyncData = async () => {
-    setLoading(true);
-    try {
-      const headers = "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
-      const result = await axios.get(
-        `http://localhost:5000/scrape?url=${encodeURIComponent(url)}&headers=${headers}`
-      );
-      
-      
-      await collectionAPI.syncDataToFirebase(result.data, "Fall", "2024-25");
-      
-      // Fetch updated courses and update state
-      const retrievedCourses = await collectionAPI.getCollection("courses");
-      setFilteredCourses(retrievedCourses);
-      
-      alert("Data synchronized successfully!");
-    } catch (error) {
-      console.error("Error syncing data:", error);
-      alert("Error syncing data. Check the console for more details.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Effect to set filtered courses initially
-  useEffect(() => {
-    const fetchInitialCourses = async () => {
-      setLoading(true);
-      try {
-        const retrievedCourses = await collectionAPI.getCollection("courses");
-        setFilteredCourses(retrievedCourses);
-      } catch (error) {
-        console.error("Error fetching initial courses:", error);
-        setFilteredCourses([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInitialCourses();
-  }, []);
 
 
- 
+
+
+
+  
+const handleTableChange = (event) => {
+  setSelectedTable(event.target.value);
+};
   return (
     <div>
       <DefaultLayout />
-      <Accordion sx={{ boxShadow: "none", mt: 2 }}>
-        <AccordionSummary
-          expandIcon={<ExpandMore />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-          sx={{ width: "180px" }}
-        >
-          <Typography fontWeight={600}>Sync Courses</Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ px: 3 }}>
-          <Grid spacing={2}>
-            <TextField
-              onChange={handleSetURL}
-              fullWidth
-              variant="outlined"
-              label="URL"
-              value={url}
-              placeholder="https://www.csus.edu/class-schedule/fall-2024/MATH"
-              helperText="The URL of the CSUS page to scrape course data from"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleSyncData}
-                      disabled={loading}
-                    >
-                      {loading ? "Syncing..." : "Sync Data"}
-                    </Button>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-        </AccordionDetails>
-      </Accordion>
-
-      
       <Box mb={2} display="flex" flexDirection="column" alignItems="center">
         <Typography variant="h6">Select Data Table</Typography>
         <Select value={selectedTable} onChange={handleTableChange} fullWidth>

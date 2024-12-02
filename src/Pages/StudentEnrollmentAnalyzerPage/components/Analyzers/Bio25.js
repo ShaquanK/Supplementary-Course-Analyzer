@@ -127,9 +127,10 @@ useEffect(() => {
     },
   };
 
-  courses
-  .filter((course) => course.course_name?.toLowerCase().match(/\bbio 25\b/))
-  .forEach((course) => {
+  
+  courses?.data?.docArray
+  ?.filter((course) => course.course_name?.toLowerCase().match(/\bbio 25\b/))
+  ?.forEach((course) => {
     const startHour = parseTime(course.start_time);
     const days = course.days?.toUpperCase();
     if (startHour !== null && days) {

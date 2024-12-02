@@ -34,30 +34,21 @@ import { collectionAPI } from "../../../../routes/collection/collection";
 import { ExpandMore } from "@mui/icons-material";
 import axios from "axios";
 
-const useGetCourses = (variable = "fall-2024") => {
+const useGetCourses = (params) => {
   const [courses, setCourses] = useState([]);
-  
-  const handleGetCourses = useCallback(async () => {
-    try {
-      // Construct the URL dynamically using the variable, defaulting to "fall-2024"
-      const url = `https://www.csus.edu/class-schedule/${variable}/CHEM`;
-      
-      // Send the constructed URL to the server
-      const retrievedCourses = await collectionAPI.getCollection("courses", { url });
 
-      setCourses(retrievedCourses);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  }, [variable]);
+  const handleGetCourses = useCallback(async () => {
+    const retrievedCourses = await collectionAPI.getCollection("courses");
+
+    setCourses(retrievedCourses);
+  }, []);
 
   useEffect(() => {
     handleGetCourses();
-  }, [handleGetCourses]);
+  }, []);
 
   return courses;
 };
-
 
 // Function to parse time in "HHMMAM/PM" format
 function parseTime(time) {
@@ -136,9 +127,9 @@ useEffect(() => {
     },
   };
 
-  courses
-  .filter((course) => course.course_name?.toLowerCase().match(/\bchem 4\b/))
-  .forEach((course) => {
+  courses?.data?.docArray
+  ?.filter((course) => course.course_name?.toLowerCase().match(/\bbio 25\b/))
+  ?.forEach((course) => {
     const startHour = parseTime(course.start_time);
     const days = course.days?.toUpperCase();
     if (startHour !== null && days) {

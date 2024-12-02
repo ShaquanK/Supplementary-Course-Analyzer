@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   collection,
   getDocs,
@@ -8,7 +8,7 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 import { db } from "../../utils/firebase";
 import {
   Box,
@@ -25,15 +25,15 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-} from '@mui/material';
+} from "@mui/material";
 import DefaultLayout from "../../components/default/layout";
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from "@mui/icons-material";
 
 function StudentAvailability() {
   const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [newCourse, setNewCourse] = useState('');
-  const [studentName, setStudentName] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [newCourse, setNewCourse] = useState("");
+  const [studentName, setStudentName] = useState("");
   const [errorMessage, setErrorMessage] = useState([]);
   const [days, setDays] = useState({
     Monday: false,
@@ -42,24 +42,22 @@ function StudentAvailability() {
     Thursday: false,
     Friday: false,
   });
-  const [timeSlots, setTimeSlots] = useState([
-    { startTime: '', endTime: '' },
-  ]);
+  const [timeSlots, setTimeSlots] = useState([{ startTime: "", endTime: "" }]);
   const [availabilityData, setAvailabilityData] = useState([]);
   const [editingStudentId, setEditingStudentId] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const coursesCollection = collection(db, 'coursesPAL');
+        const coursesCollection = collection(db, "coursesPAL");
         const snapshot = await getDocs(coursesCollection);
-        const coursesData = snapshot.docs.map(doc => ({
+        const coursesData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setCourses(coursesData);
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error("Error fetching courses:", error);
       }
     };
 
@@ -72,14 +70,17 @@ function StudentAvailability() {
     const fetchAvailability = async () => {
       try {
         const q = query(
-          collection(db, 'studentAvailability'),
-          where('courseId', '==', selectedCourse)
+          collection(db, "studentAvailability"),
+          where("courseId", "==", selectedCourse)
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setAvailabilityData(data);
       } catch (error) {
-        console.error('Error fetching availability data:', error);
+        console.error("Error fetching availability data:", error);
       }
     };
 
@@ -91,14 +92,16 @@ function StudentAvailability() {
   };
 
   const handleAddCourse = async () => {
-    if (newCourse.trim() === '') return;
+    if (newCourse.trim() === "") return;
     try {
-      const docRef = await addDoc(collection(db, 'coursesPAL'), { name: newCourse });
+      const docRef = await addDoc(collection(db, "coursesPAL"), {
+        name: newCourse,
+      });
       setCourses([...courses, { id: docRef.id, name: newCourse }]);
       setSelectedCourse(docRef.id);
-      setNewCourse('');
+      setNewCourse("");
     } catch (error) {
-      console.error('Error adding course:', error);
+      console.error("Error adding course:", error);
     }
   };
 
@@ -113,27 +116,29 @@ function StudentAvailability() {
   };
 
   const addTimeSlot = () => {
-    setTimeSlots([...timeSlots, { startTime: '', endTime: '' }]);
+    setTimeSlots([...timeSlots, { startTime: "", endTime: "" }]);
   };
 
   const handleDeleteCourse = async (courseId) => {
     try {
-      await deleteDoc(doc(db, 'coursesPAL', courseId));
-      setCourses(courses.filter(course => course.id !== courseId));
-      if (selectedCourse === courseId) setSelectedCourse('');
+      await deleteDoc(doc(db, "coursesPAL", courseId));
+      setCourses(courses?.filter((course) => course.id !== courseId));
+      if (selectedCourse === courseId) setSelectedCourse("");
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error("Error deleting course:", error);
     }
   };
 
   const handleDeleteStudent = async (studentId) => {
     try {
-      await deleteDoc(doc(db, 'studentAvailability', studentId));
-      setAvailabilityData(availabilityData.filter(student => student.id !== studentId));
+      await deleteDoc(doc(db, "studentAvailability", studentId));
+      setAvailabilityData(
+        availabilityData.filter((student) => student.id !== studentId)
+      );
     } catch (error) {
-      console.error('Error deleting student:', error);
+      console.error("Error deleting student:", error);
     }
-  };  
+  };
 
   const handleEditStudent = (student) => {
     setEditingStudentId(student.id);
@@ -153,7 +158,7 @@ function StudentAvailability() {
   const handleUpdateStudent = async () => {
     if (!editingStudentId) return;
 
-    const selectedDays = Object.keys(days).filter(day => days[day]);
+    const selectedDays = Object.keys(days).filter((day) => days[day]);
     if (selectedDays.length === 0 || !studentName.trim()) return;
 
     const updatedData = {
@@ -163,16 +168,19 @@ function StudentAvailability() {
     };
 
     try {
-      await updateDoc(doc(db, 'studentAvailability', editingStudentId), updatedData);
+      await updateDoc(
+        doc(db, "studentAvailability", editingStudentId),
+        updatedData
+      );
       setAvailabilityData(
-        availabilityData.map(student =>
+        availabilityData.map((student) =>
           student.id === editingStudentId
             ? { ...student, ...updatedData }
             : student
         )
       );
       setEditingStudentId(null);
-      setStudentName('');
+      setStudentName("");
       setDays({
         Monday: false,
         Tuesday: false,
@@ -180,9 +188,9 @@ function StudentAvailability() {
         Thursday: false,
         Friday: false,
       });
-      setTimeSlots([{ startTime: '', endTime: '' }]);
+      setTimeSlots([{ startTime: "", endTime: "" }]);
     } catch (error) {
-      console.error('Error updating student:', error);
+      console.error("Error updating student:", error);
     }
   };
 
@@ -190,7 +198,7 @@ function StudentAvailability() {
     const updatedTimeSlots = timeSlots.filter((_, idx) => idx !== index);
     setTimeSlots(updatedTimeSlots);
   };
-  
+
   const handleSubmit = async () => {
     if (!selectedCourse) return;
 
@@ -202,17 +210,17 @@ function StudentAvailability() {
     }
 
     // Check Selected Days
-    const selectedDays = Object.keys(days).filter(day => days[day]);
+    const selectedDays = Object.keys(days).filter((day) => days[day]);
     if (selectedDays.length === 0) {
-      errors.push('Please select at least one day.');
+      errors.push("Please select at least one day.");
     }
 
     // Check Time Slots
     const incompleteTimeSlots = timeSlots.some(
-      slot => !slot.startTime || !slot.endTime
+      (slot) => !slot.startTime || !slot.endTime
     );
     if (incompleteTimeSlots) {
-      errors.push('Please fill in all time slots.');
+      errors.push("Please fill in all time slots.");
     }
 
     // Check for Errors
@@ -232,18 +240,22 @@ function StudentAvailability() {
 
     // Local Duplicate Check
     const existingStudent = availabilityData.find(
-      student => student.studentName.trim().toLowerCase() === studentName.trim().toLowerCase()
+      (student) =>
+        student.studentName.trim().toLowerCase() ===
+        studentName.trim().toLowerCase()
     );
     if (existingStudent) {
-      setErrorMessage(["A student with this name already exists in the selected course."]);
+      setErrorMessage([
+        "A student with this name already exists in the selected course.",
+      ]);
       return;
     }
 
     try {
-      await addDoc(collection(db, 'studentAvailability'), availability);
+      await addDoc(collection(db, "studentAvailability"), availability);
 
       // Reset form
-      setStudentName('');
+      setStudentName("");
       setDays({
         Monday: false,
         Tuesday: false,
@@ -251,28 +263,28 @@ function StudentAvailability() {
         Thursday: false,
         Friday: false,
       });
-      setTimeSlots([{ startTime: '', endTime: '' }]);
+      setTimeSlots([{ startTime: "", endTime: "" }]);
 
       // Refresh availability data
       const q = query(
-        collection(db, 'studentAvailability'),
-        where('courseId', '==', selectedCourse)
+        collection(db, "studentAvailability"),
+        where("courseId", "==", selectedCourse)
       );
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => doc.data());
+      const data = snapshot.docs.map((doc) => doc.data());
       setAvailabilityData(data);
     } catch (error) {
-      console.error('Error submitting availability:', error);
+      console.error("Error submitting availability:", error);
     }
   };
 
   // Formatting military time to AM/PM
   const formatTime = (timeStr) => {
-    const [hourStr, minuteStr] = timeStr.split(':');
+    const [hourStr, minuteStr] = timeStr.split(":");
     let hour = parseInt(hourStr, 10);
     const minute = minuteStr;
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12 || 12; 
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
     return `${hour}:${minute} ${ampm}`;
   };
 
@@ -292,7 +304,7 @@ function StudentAvailability() {
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              {courses.map(course => (
+              {courses.map((course) => (
                 <MenuItem key={course.id} value={course.id}>
                   {course.name}
                   {!selectedCourse && (
@@ -302,7 +314,7 @@ function StudentAvailability() {
                         handleDeleteCourse(course.id);
                       }}
                       color="secondary"
-                      style={{ marginLeft: '8px' }}
+                      style={{ marginLeft: "8px" }}
                     >
                       <Delete />
                     </IconButton>
@@ -332,11 +344,13 @@ function StudentAvailability() {
             </Button>
           </Box>
         </Box>
-  
+
         {selectedCourse && (
           <Box marginBottom={4}>
             <Typography variant="h5">
-              {editingStudentId ? "Edit Student Availability" : "Enter Student Availability"}
+              {editingStudentId
+                ? "Edit Student Availability"
+                : "Enter Student Availability"}
             </Typography>
             {errorMessage.length > 0 && (
               <Box marginBottom={2}>
@@ -344,11 +358,11 @@ function StudentAvailability() {
                   color="error"
                   variant="h6"
                   style={{
-                    fontWeight: 'bold',
-                    fontSize: '1.2rem',
-                    backgroundColor: '#fdd',
-                    padding: '8px',
-                    borderRadius: '4px',
+                    fontWeight: "bold",
+                    fontSize: "1.2rem",
+                    backgroundColor: "#fdd",
+                    padding: "8px",
+                    borderRadius: "4px",
                   }}
                 >
                   Please fix the following errors:
@@ -359,7 +373,7 @@ function StudentAvailability() {
                       <ListItemText
                         primary={error}
                         primaryTypographyProps={{
-                          style: { fontSize: '1.1rem', fontWeight: 'bold' },
+                          style: { fontSize: "1.1rem", fontWeight: "bold" },
                         }}
                       />
                     </ListItem>
@@ -367,7 +381,7 @@ function StudentAvailability() {
                 </List>
               </Box>
             )}
-  
+
             <TextField
               id="student_name"
               label="Student Name"
@@ -380,7 +394,7 @@ function StudentAvailability() {
             <Box marginY={2}>
               <Typography variant="subtitle1">Select Days</Typography>
               <Box display="flex" flexWrap="wrap">
-                {Object.keys(days).map(day => (
+                {Object.keys(days).map((day) => (
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -398,13 +412,20 @@ function StudentAvailability() {
             <Box marginY={2}>
               <Typography variant="subtitle1">Time Slots</Typography>
               {timeSlots.map((slot, index) => (
-                <Box key={index} display="flex" alignItems="center" marginBottom={1}>
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  marginBottom={1}
+                >
                   <TextField
                     id="start_time"
                     label="Start Time"
                     type="time"
                     value={slot.startTime}
-                    onChange={(e) => handleTimeSlotChange(index, 'startTime', e.target.value)}
+                    onChange={(e) =>
+                      handleTimeSlotChange(index, "startTime", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     inputProps={{ step: 300 }}
                     variant="outlined"
@@ -416,7 +437,9 @@ function StudentAvailability() {
                     label="End Time"
                     type="time"
                     value={slot.endTime}
-                    onChange={(e) => handleTimeSlotChange(index, 'endTime', e.target.value)}
+                    onChange={(e) =>
+                      handleTimeSlotChange(index, "endTime", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     inputProps={{ step: 300 }}
                     variant="outlined"
@@ -432,7 +455,12 @@ function StudentAvailability() {
                   </IconButton>
                 </Box>
               ))}
-              <Button id='add_timeslot' onClick={addTimeSlot} variant="outlined" color="primary">
+              <Button
+                id="add_timeslot"
+                onClick={addTimeSlot}
+                variant="outlined"
+                color="primary"
+              >
                 Add Time Slot
               </Button>
             </Box>
@@ -447,15 +475,15 @@ function StudentAvailability() {
             </Button>
           </Box>
         )}
-  
+
         {selectedCourse && (
           <Box>
             <Typography variant="h5">Student Availability</Typography>
-            {availabilityData.map(student => (
+            {availabilityData.map((student) => (
               <Box key={student.id} border={1} padding={2} marginY={2}>
                 <Typography variant="h6">{student.studentName}</Typography>
                 <Typography variant="subtitle1">
-                  Days: {student.days.join(', ')}
+                  Days: {student.days.join(", ")}
                 </Typography>
                 <Typography variant="subtitle1">Time Slots:</Typography>
                 {student.timeSlots.map((slot, idx) => (
@@ -486,6 +514,6 @@ function StudentAvailability() {
       </Box>
     </DefaultLayout>
   );
-}  
+}
 
 export default StudentAvailability;

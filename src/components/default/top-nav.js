@@ -24,14 +24,13 @@ import { signOut } from "firebase/auth";
 const menuOptions = [
   { label: "Home", path: "/" },
   { label: "Search", path: "/search" },
-  { label: "Course Time Analyzer", path: "/CourseTimeAnalyzer" },
   { label: "Creators", path: "/Creators" },
   {
     label: "Student Enrollment Analyzer",
     path: "/StudentEnrollmentAnalyzer",
   },
   { label: "User List", path: "/users" },
-  { label: "Manage User", path: "/ManageUser", id:"manage_user" },
+  { label: "Manage User", path: "/ManageUser", id: "manage_user" },
 ];
 
 export const TopNav = () => {
@@ -201,7 +200,9 @@ export const TopNav = () => {
                   component={RouterLink}
                   to={option.path}
                   key={option.path}
-                  id={option.id || option.label.toLowerCase().replace(/\s+/g, "_")}
+                  id={
+                    option.id || option.label.toLowerCase().replace(/\s+/g, "_")
+                  }
                   sx={{
                     color: "white",
                     "&:hover": {

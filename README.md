@@ -4,6 +4,8 @@ This App will be used to help professors at Sac State create PAL classes for the
 
 ![Sac State Logo](https://github.com/Jdcruz831/Supplementary-Course-Analyzer/blob/main/src/img/sacstatelogo.png)
 
+![Scripters Logo](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/logo.png)
+
 ## Table Of Contents
 
 [Background](#background)
@@ -76,6 +78,9 @@ Manage Users Page
 
 Creators Page
 ![creators](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/creators.png)
+
+Student Course Analyzer Page
+![creators](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/sca_final.png)
 
 
 ## Contributors & Contact

@@ -36,6 +36,8 @@ Peer Assisted Learning (PAL) offers 1-unit courses available for students enroll
 -Open up the project and go to the tests folder within the project tree. Select a test and run.
 
 ## Deployment
+For deployment, we used Varcel, a free site used for hosting React projects. The link to the official site is: https://supplementary-course-analyzer-two.vercel.app/
+Varcel directly pulls from the git hub, so when the GitHub is updated or changed, the page will dynamically change with it. 
 
 ## Developer Instructions
 This guide is meant for a windows machine but with a few tweaks, this can be run on a Linux or Mac Machine.

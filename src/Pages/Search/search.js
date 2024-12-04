@@ -55,60 +55,63 @@ export const Search = () => {
   const headers =
     "Section, Seats, Days, Instructor, StartTime, EndTime, Building";
 
-  const handleGetCourses = useCallback(async () => {
-    setLoading(true);
+  const handleGetCourses = useCallback(
+    async (first, last) => {
+      setLoading(true);
 
-    const params = {
-      query: query,
-      section: section,
-      startTime: startTime,
-      endTime: endTime,
-      showAvail: showAvail,
-      lastVisible: lastVisible,
-      firstVisible: firstVisible,
-    };
+      const params = {
+        query: query,
+        section: section,
+        startTime: startTime,
+        endTime: endTime,
+        showAvail: showAvail,
+        lastVisible: last,
+        firstVisible: first,
+      };
 
-    try {
-      const response = await collectionAPI.getCollection(
-        "courses",
-        rowsPerPage,
-        params
-      );
+      try {
+        const response = await collectionAPI.getCollection(
+          "courses",
+          rowsPerPage,
+          params
+        );
 
-      setCourses(response?.docsArray ?? []);
+        setCourses(response?.docsArray ?? []);
 
-      setLastVisible(response?.lastVisible ?? null);
-      setFirstVisible(response?.docsArray[0]?.snapshot ?? null);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    rowsPerPage,
-    lastVisible,
-    firstVisible,
-    query,
-    startTime,
-    endTime,
-    section,
-    showAvail,
-  ]);
+        setLastVisible(response?.lastVisible ?? null);
+        setFirstVisible(response?.docsArray[0]?.snapshot ?? null);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      rowsPerPage,
+      lastVisible,
+      firstVisible,
+      query,
+      startTime,
+      endTime,
+      section,
+      showAvail,
+    ]
+  );
 
   useEffect(() => {
     setCourses([]);
     setLoading(true);
-    handleGetCourses();
+    handleGetCourses(firstVisible, lastVisible);
   }, [page, rowsPerPage]);
 
   useEffect(() => {
     setLastVisible(null);
-    const count = [query, section, startTime, endTime].filter(
+    const count = [section, startTime, endTime].filter(
       (value) => value !== null && value !== undefined && value !== ""
     ).length;
 
     setFilterCount(count);
-  }, [query, section, startTime, endTime]);
+  }, [section, startTime, endTime]);
 
   const handleSyncData = async () => {
     setLoading(true);
@@ -185,7 +188,12 @@ export const Search = () => {
             helperText="Must be an exact match ('anth 1', 'bio 1', etc)"
             InputProps={{
               endAdornment: (
-                <IconButton onClick={() => handleGetCourses()} position="end">
+                <IconButton
+                  onClick={() => {
+                    handleGetCourses();
+                  }}
+                  position="end"
+                >
                   <SearchIcon />
                 </IconButton>
               ),

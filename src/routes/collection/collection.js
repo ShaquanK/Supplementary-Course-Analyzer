@@ -66,6 +66,8 @@ class CollectionAPI {
 
       queryRef = query(queryRef, limit(pageSize));
 
+      console.log(queryRef);
+
       const querySnapshot = await getDocs(queryRef);
 
       const docsArray = [];

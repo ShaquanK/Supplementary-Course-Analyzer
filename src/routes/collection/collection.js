@@ -66,8 +66,6 @@ class CollectionAPI {
 
       queryRef = query(queryRef, limit(pageSize));
 
-      console.log(queryRef);
-
       const querySnapshot = await getDocs(queryRef);
 
       const docsArray = [];
@@ -170,36 +168,56 @@ class CollectionAPI {
    *
    */
   syncDataToFirebase = async function (courses, semester, year) {
-    if (courses) {
-      for (const [courseName, sections] of Object.entries(courses)) {
-        const courseRef = collection(db, "courses");
+    try {
+      if (courses) {
+        // Iterate over all courses
+        for (const [courseName, sections] of Object.entries(courses)) {
+          const courseRef = collection(db, "courses");
 
-        for (const section of sections) {
-          // Create a unique ID based on course name, section, days, semester, and year
-          const sectionId = `${courseName}-${section.Section}-${section.Days}-${semester}-${year}`;
+          // Iterate over all sections for each course
+          for (const section of sections) {
+            // Create a unique ID for each section
+            const sectionId = `${courseName}-${section.Section}-${section.Days}-${semester}-${year}`;
 
-          // Create a reference to the document
-          const sectionRef = doc(courseRef, sectionId);
+            // Create a reference to the Firestore document
+            const sectionRef = doc(courseRef, sectionId);
 
-          // Set the document (this will update if it exists or create if it doesn't)
-          await setDoc(
-            sectionRef,
-            {
-              course_name: courseName,
-              section: section.Section || "",
-              seats: section.Seats || "",
-              days: section.Days || "",
-              instructor: section.Instructor || "",
-              start_time: section.StartTime || "",
-              end_time: section.EndTime || "",
-              building: section.Building || "",
-              semester: semester || "Unknown",
-              year: year || "Unknown",
-            },
-            { merge: true }
-          );
+            try {
+              // Set the document data (it will merge if it already exists)
+              await setDoc(
+                sectionRef,
+                {
+                  course_name: courseName,
+                  section: section.Section || "",
+                  seats: section.Seats || "",
+                  days: section.Days || "",
+                  instructor: section.Instructor || "",
+                  start_time: section.StartTime || "",
+                  end_time: section.EndTime || "",
+                  building: section.Building || "",
+                  semester: semester || "Unknown",
+                  year: year || "Unknown",
+                },
+                { merge: true }
+              );
+            } catch (docError) {
+              // Log failure for specific section if there's an error
+              console.error(
+                `Error syncing document for ${sectionId}:`,
+                docError
+              );
+            }
+          }
         }
       }
+
+      // Log a final success message once all documents are processed
+      console.log("All documents synced successfully!");
+      return true;
+    } catch (error) {
+      // General error handling
+      console.error("Error syncing data to Firebase:", error);
+      return `Sync failed: ${error.message}`;
     }
   };
 }

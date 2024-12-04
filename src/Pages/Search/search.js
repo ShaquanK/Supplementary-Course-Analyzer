@@ -29,10 +29,13 @@ import { ExpandMore } from "@mui/icons-material";
 import axios from "axios";
 import { FilterModal } from "./components/FilterModal";
 import { CalendarView } from "../../components/CalendarView";
+import { useSnackbar } from "notistack";
 
 export const Search = () => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncLoading, setSyncLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [section, setSection] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -77,7 +80,6 @@ export const Search = () => {
         );
 
         setCourses(response?.docsArray ?? []);
-
         setLastVisible(response?.lastVisible ?? null);
         setFirstVisible(response?.docsArray[0]?.snapshot ?? null);
       } catch (error) {
@@ -114,21 +116,42 @@ export const Search = () => {
   }, [section, startTime, endTime]);
 
   const handleSyncData = async () => {
-    setLoading(true);
+    setSyncLoading(true);
+    let sync = false;
     try {
       const result = await axios(
         `http://localhost:5000/scrape?url=${encodeURIComponent(
           url
         )}&headers=${headers}`
-      );
+      ).then((resp) => {
+        if (resp.status == 200) {
+          sync = true;
+          enqueueSnackbar(
+            `Adding information for ${
+              Object.entries(resp?.data).length
+            } course(s)`,
+            {
+              variant: "success",
+            }
+          );
+          return resp;
+        }
+      });
       setData(result.data);
 
-      await collectionAPI.syncDataToFirebase(result?.data, "Fall", "2024-25");
+      if (sync) {
+        collectionAPI.syncDataToFirebase(result?.data, "Fall", "2024-25");
+        setSyncLoading(false);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
+      enqueueSnackbar(
+        "Something went wrong when attempting to sync data. Check site logs for more info.",
+        {
+          variant: `error`,
+        }
+      );
       setData([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -245,6 +268,7 @@ export const Search = () => {
             <TextField
               onChange={handleSetURL}
               fullWidth
+              disabled={syncLoading}
               variant="outlined"
               label="URL"
               value={url}
@@ -254,12 +278,16 @@ export const Search = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <Button
+                      disabled={syncLoading}
                       id="sync-data-button"
                       variant="contained"
                       color="primary"
                       onClick={handleSyncData}
                     >
-                      Sync Data
+                      Sync Data{" "}
+                      {syncLoading && (
+                        <CircularProgress color="inherit" size={14} />
+                      )}
                     </Button>
                   </InputAdornment>
                 ),
@@ -269,15 +297,17 @@ export const Search = () => {
         </AccordionDetails>
       </Accordion>
 
-      {loading ? (
-        <Grid item xs={12} alignItems="center" textAlign="center">
-          <CircularProgress />
-        </Grid>
-      ) : courses?.length >= 1 ? (
-        <Grid container>
-          <TableContainer>
+      <TableContainer>
+        {loading ? (
+          <Grid item xs={12} alignItems="center" textAlign="center">
+            <CircularProgress />
+          </Grid>
+        ) : courses?.length >= 1 ? (
+          <Grid container>
             {isCalendarView && mdUp ? (
-              <CalendarView id="calendar-view" courses={courses} />
+              <Grid item xs={12}>
+                <CalendarView id="calendar-view" courses={courses} />
+              </Grid>
             ) : (
               <Table>
                 <TableBody id="courses-table">
@@ -428,32 +458,45 @@ export const Search = () => {
                 </TableBody>
               </Table>
             )}
-          </TableContainer>
-
-          <Grid item xs={12}>
-            <TablePagination
-              id="courses-pagination"
-              rowsPerPageOptions={[15, 30, 60]}
-              component="div"
-              count={-1}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
           </Grid>
+        ) : (
+          <Grid
+            id="no-courses-found"
+            item
+            xs={12}
+            alignItems="center"
+            textAlign="center"
+          >
+            <Typography variant="h4">No Courses Found</Typography>
+          </Grid>
+        )}
+
+        <Grid item xs={12}>
+          <TablePagination
+            id="courses-pagination"
+            rowsPerPageOptions={[15, 30, 60]}
+            component="div"
+            count={
+              courses?.length >= 1 && courses?.length === rowsPerPage
+                ? -1
+                : courses?.length >= 1 && courses?.length <= rowsPerPage
+                ? courses?.length + rowsPerPage
+                : 0
+            }
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            slotProps={{
+              actions: {
+                nextButton: {
+                  disabled: courses?.length < rowsPerPage,
+                },
+              },
+            }}
+          />
         </Grid>
-      ) : (
-        <Grid
-          id="no-courses-found"
-          item
-          xs={12}
-          alignItems="center"
-          textAlign="center"
-        >
-          <Typography variant="h4">No Courses Found</Typography>
-        </Grid>
-      )}
+      </TableContainer>
       {showFilterModal && (
         <FilterModal
           isOpened={showFilterModal}

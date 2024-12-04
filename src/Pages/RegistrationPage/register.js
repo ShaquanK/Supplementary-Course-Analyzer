@@ -24,10 +24,10 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const allowedDomains = process.env.REACT_APP_ALLOWED_REGISTRATION_DOMAINS;
   const auth = getAuth();
   const form = useRef();
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
@@ -64,15 +64,22 @@ const Register = () => {
 
   const handleSignUp = (e) => {
     e.preventDefault();
+
+    const emailDomain = email.split("@")[1];
+    if (!allowedDomains.split(",").includes(emailDomain)) {
+      setErrorMessage(
+        "This domain is not authorized for use within this portal"
+      );
+      return;
+    }
+
     if (password === confirmPassword) {
-      // Proceed with signup using Firebase
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
 
-          // Update the displayName
           return updateProfile(user, {
-            displayName: displayName, // Replace with actual display name input if available
+            displayName: displayName,
           });
         })
         .then(() => {
@@ -211,7 +218,9 @@ const Register = () => {
 
           {errorMessage?.length >= 1 && (
             <Grid xs={12} mt={3}>
-              <Alert id="error_message" severity="error">{errorMessage}</Alert>
+              <Alert id="error_message" severity="error">
+                {errorMessage}
+              </Alert>
             </Grid>
           )}
           {successMessage?.length >= 1 && (

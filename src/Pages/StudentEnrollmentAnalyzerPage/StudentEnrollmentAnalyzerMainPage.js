@@ -252,7 +252,7 @@ export const StudentEnrollmentAnalyzerMainPage = () => {
   }, []);
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title="Course Time Analyzer">
       <Grid container spacing={2} p={1}>
         <Grid item xs={12}>
           <Autocomplete
@@ -292,7 +292,7 @@ export const StudentEnrollmentAnalyzerMainPage = () => {
           <Box component={Paper}>
             <Stack justifyContent="center" alignItems="center" height="100%">
               <Typography variant="subtitle1">
-                Monday/Wednesday/Friday Time Slots
+                Monday/Wednesday/Friday
               </Typography>
             </Stack>
 

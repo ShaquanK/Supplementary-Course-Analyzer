@@ -36,6 +36,8 @@ Peer Assisted Learning (PAL) offers 1-unit courses available for students enroll
 -Open up the project and go to the tests folder within the project tree. Select a test and run.
 
 ## Deployment
+For deployment, we used Varcel, a free site used for hosting React projects. The link to the official site is: https://supplementary-course-analyzer-two.vercel.app/
+Varcel directly pulls from the git hub, so when the GitHub is updated or changed, the page will dynamically change with it. 
 
 ## Developer Instructions
 This guide is meant for a windows machine but with a few tweaks, this can be run on a Linux or Mac Machine.
@@ -64,23 +66,42 @@ Prototype Login Page
 ![Proto_Login_Page](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/Proto_Login_Page.png)
 
 ## Final Pages
-Home Page
+Home Page\
+The home page allows users to navigate to everything our application offers. There are links to the main Sacramento website, the search page, the Student Course Analyzer Page, and the Student Availability Page. The user can also use the hamburger icon to navigate to these pages as well as the user list if they have admin privileges to see who is on the site. \
 ![home_page](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/final_home.png)
 
-Login Page
+Login Page\
+The login page allows the user to register for an account or to login using their credentials.\
 ![login](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/Final_Login_Page.png)
 
-Registration Page
+Registration Page\
+The registration page allows the user to choose a display name and register for the application using their email and selected password.\
 ![register](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/final_registration.png)
 
-Manage Users Page
+Student Course Analyzer Page\
+This page allows the user to see the best time slots for the courses that are listed on the site. This is the main page for the product and shows the best times for the client to host their PAL sessions.\
+![sca_final](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/sca_final.png)
+
+User List Page\
+Application users can be viewed and deleted on the user list page. This is an administrative only page, so elevated privileges are required (users must be logged in to view the page).\
+![User_List](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/user_list.png)
+
+Student Availability Page\
+The Student Availability Page allows users to add courses to the site manually if they are not up on the official Sac State website or if there are more courses to add. \
+![Student_Availability](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/student_availability.png)
+
+Student Search Page\
+Users can search courses by name as well as filter courses by multiple fields; start time, end time, section, and availability. In addition to filtering courses, they can be viewed via a calendar view that shows the days and times in which courses are scheduled.\
+![Student_Search](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/student_search.png)
+
+Manage Users Page\
+Users can use the manage users page to change their email or password. It does require the use of the old email and old password to change to a new email or password. Email verification is required once the password or email is changed.\
 ![manage_users](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/manage_users.png)
 
-Creators Page
+Creators Page\
+These are the creators of the app! Thank you for choosing us!\
 ![creators](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/creators.png)
 
-Student Course Analyzer Page
-![creators](https://github.com/kdiep4/Supplementary-Course-Analyzer/blob/main/src/img/sca_final.png)
 
 
 ## Contributors & Contact

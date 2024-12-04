@@ -104,6 +104,7 @@ const incrementTimeSlot = (startHour, days, timeSlotCounts) => {
 };
 
 export const StudentEnrollmentAnalyzerMainPage = () => {
+<<<<<<< HEAD
   const [courses, setCourses] = useState([]);
   const [courseNames, setCourseNames] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -318,6 +319,32 @@ export const StudentEnrollmentAnalyzerMainPage = () => {
       </Accordion> */}
 
       {/* <Box mb={2} display="flex" flexDirection="column" alignItems="center">
+=======
+  const [selectedTable, setSelectedTable] = useState("math12");
+  const Math12TimeSlotCounts = useMath12TimeSlotCounts();
+  const Math29TimeSlotCounts = useMath29TimeSlotCounts();
+  const Math30TimeSlotCounts = useMath30TimeSlotCounts();
+  const Math31TimeSlotCounts = useMath31TimeSlotCounts();
+  const Math32TimeSlotCounts = useMath32TimeSlotCounts();
+  const Bio25TimeSlotCounts = useBio25TimeSlotCounts();
+  const Bio26TimeSlotCounts = useBio26TimeSlotCounts();
+  const Bio131TimeSlotCounts = useBio131TimeSlotCounts();
+  const Chem4TimeSlotCounts = useChem4TimeSlotCounts();
+
+
+
+
+
+
+  
+const handleTableChange = (event) => {
+  setSelectedTable(event.target.value);
+};
+  return (
+    <div>
+      <DefaultLayout />
+      <Box mb={2} display="flex" flexDirection="column" alignItems="center">
+>>>>>>> main
         <Typography variant="h6">Select Data Table</Typography>
         <Select value={selectedTable} onChange={handleTableChange} fullWidth>
           <MenuItem value="math29">Math 29 Time Slots</MenuItem>

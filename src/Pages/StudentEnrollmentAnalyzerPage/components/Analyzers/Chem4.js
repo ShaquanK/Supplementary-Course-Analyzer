@@ -34,8 +34,9 @@ import { collectionAPI } from "../../../../routes/collection/collection";
 import { ExpandMore } from "@mui/icons-material";
 import axios from "axios";
 
-const useGetCourses = (variable = "fall-2024") => {
+const useGetCourses = (params) => {
   const [courses, setCourses] = useState([]);
+<<<<<<< HEAD
 
   const handleGetCourses = useCallback(async () => {
     try {
@@ -46,16 +47,18 @@ const useGetCourses = (variable = "fall-2024") => {
       const retrievedCourses = await collectionAPI.getCollection("courses", {
         url,
       });
+=======
+>>>>>>> main
 
-      setCourses(retrievedCourses);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  }, [variable]);
+  const handleGetCourses = useCallback(async () => {
+    const retrievedCourses = await collectionAPI.getCollection("courses");
+
+    setCourses(retrievedCourses);
+  }, []);
 
   useEffect(() => {
     handleGetCourses();
-  }, [handleGetCourses]);
+  }, []);
 
   return courses;
 };
@@ -172,8 +175,48 @@ export const useChem4TimeSlotCounts = () => {
     //   }
     // });
 
+<<<<<<< HEAD
     setTimeSlotCounts(newTimeSlotCounts);
   }, [courses]);
+=======
+  courses?.data?.docArray
+  ?.filter((course) => course.course_name?.toLowerCase().match(/\bbio 25\b/))
+  ?.forEach((course) => {
+    const startHour = parseTime(course.start_time);
+    const days = course.days?.toUpperCase();
+    if (startHour !== null && days) {
+      if (days.includes("M") || days.includes("W") || days.includes("F")) {
+        if (startHour >= 9 && startHour < 10) {
+          newTimeSlotCounts.MWF["9-10"]++;
+        } else if (startHour >= 10 && startHour < 11) {
+          newTimeSlotCounts.MWF["10-11"]++;
+        } else if (startHour >= 11 && startHour < 12) {
+          newTimeSlotCounts.MWF["11-12"]++;
+        } else if (startHour >= 12 && startHour < 13) {
+          newTimeSlotCounts.MWF["12-1"]++;
+        } else if (startHour >= 13 && startHour < 14) {
+          newTimeSlotCounts.MWF["1-2"]++;
+        } else if (startHour >= 14 && startHour < 15) {
+          newTimeSlotCounts.MWF["2-3"]++;
+        } else if (startHour >= 15 && startHour < 16) {
+          newTimeSlotCounts.MWF["3-4"]++;
+        }
+      } else if (days.includes("T") || days.includes("R")) {
+        if (startHour >= 9 && startHour < 10.25) {
+          newTimeSlotCounts.TR["9-10:15"]++;
+        } else if (startHour >= 10.5 && startHour < 11.75) {
+          newTimeSlotCounts.TR["10:30-11:45"]++;
+        } else if (startHour >= 12 && startHour < 13.25) {
+          newTimeSlotCounts.TR["12-1:15"]++;
+        } else if (startHour >= 13.5 && startHour < 14.75) {
+          newTimeSlotCounts.TR["1:30-2:45"]++;
+        } else if (startHour >= 15 && startHour < 16.25) {
+          newTimeSlotCounts.TR["3-4:15"]++;
+        }
+      }
+    }
+  });
+>>>>>>> main
 
   return timeSlotCounts;
 };

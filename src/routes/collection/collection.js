@@ -116,6 +116,29 @@ class CollectionAPI {
     }
   };
 
+  getUniqueCourseNames = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "courses"));
+
+      const uniqueCourseNames = new Set();
+
+      querySnapshot.forEach((doc) => {
+        const course = doc.data();
+        if (course.course_name) uniqueCourseNames.add(course.course_name);
+      });
+
+      const courseNames = [...uniqueCourseNames];
+
+      courseNames.sort((a, b) => {
+        return a.localeCompare(b);
+      });
+
+      return { courseNames };
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
   /**
    * Retrieves a specific document via document ID from a specified Firestore collection
    *
